@@ -116,9 +116,11 @@ unsigned long parse(bool vis, std::ifstream& in, std::ofstream& out, std::vector
             readCurrentLine(vis, readingLine, lineVals);
             out << indent(tab) << "{\n"; ++tab;
             for (unsigned i = 0; i < cats.size(); ++i) {
-                out << indent(tab) << "\"" << cats.at(i) << "\": \"" << lineVals.at(i) << "\",\n";
+                if ((i + 1) == cats.size()) { out << indent(tab) << "\"" << cats.at(i) << "\": \"" << lineVals.at(i) << "\"\n"; }
+                else { out << indent(tab) << "\"" << cats.at(i) << "\": \"" << lineVals.at(i) << "\",\n"; }
             }
-            --tab; out << indent(tab) << "},\n";
+            if (in.peek() != -1) { --tab; out << indent(tab) << "},\n"; }
+            else { --tab; out << indent(tab) << "}\n"; }
             lineVals.clear();
         }
     }
