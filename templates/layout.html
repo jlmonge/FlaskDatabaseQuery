@@ -1,0 +1,20 @@
+<!-- html tag starts html -->
+<html>
+   <head>
+      <!-- href is set to look inside the static folder for styles/styles.css -->
+      <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+      <!-- title is the what the tab of the website will say -->
+      <title>Kickstarter - Data</title>
+   </head>
+   <!-- body tag containes content of html document. Only 1 body allowed -->
+   <body>
+      <!-- navbar starts here -->
+      <ul>
+         <li><a href="/"><img src="{{url_for('static', filename='jar.png')}}" class="icon"></a></li>
+         <li><a href="/id">Search</a></li>  <!-- these are not separate pages - yet -->
+      </ul>
+      <!-- this allows the rest of website to be changed in different files -->
+      {% block content %}{% endblock %}
+
+   </body>
+</html>

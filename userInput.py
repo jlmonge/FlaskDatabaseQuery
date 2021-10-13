@@ -7,4 +7,4 @@
 
 class exampleForm:#very basic form. It does not error check.
     def __init__(self, passedName):
-        self.nm = passedName
+        self.id = passedName
