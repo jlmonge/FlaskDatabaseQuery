@@ -4,7 +4,8 @@ import json
 
 def catagory_search(wanted_category):
 
-    fileInstance = open('ks-projects-201801.json',encoding = "utf-8-sig")
+    fileInstance = open('ks-projects-201801.json',encoding = "utf-8-sig") 
+    #fileInstance = open(r'parser\Files\output\2018ksprojects.json',encoding = "utf-8-sig")
     dictonary = json.load(fileInstance) #whole jason file in dictonary
 
     returnDictionary = {}
@@ -20,6 +21,7 @@ def catagory_search(wanted_category):
 def state_search(wanted_state):
 
     fileInstance = open('ks-projects-201801.json',encoding = "utf-8-sig")
+    #fileInstance = open(r'parser\Files\output\2018ksprojects.json',encoding = "utf-8-sig")
     dictonary = json.load(fileInstance) 
 
     returnDictionary = {}
@@ -34,6 +36,7 @@ def state_search(wanted_state):
 def launched_month_search(wanted_month):#DATE MUST BE PASSED IN AS A STRING WITH FORMAT XX(example 01,11,12)
 
     fileInstance = open('ks-projects-201801.json',encoding = "utf-8-sig")
+    #fileInstance = open(r'parser\Files\output\2018ksprojects.json',encoding = "utf-8-sig")
     dictonary = json.load(fileInstance) 
 
     returnDictionary = {}
@@ -48,6 +51,7 @@ def launched_month_search(wanted_month):#DATE MUST BE PASSED IN AS A STRING WITH
 def highest_usd_pledged_search():
 
     fileInstance = open('ks-projects-201801.json',encoding = "utf-8-sig")
+    #fileInstance = open(r'parser\Files\output\2018ksprojects.json',encoding = "utf-8-sig")
     dictonary = json.load(fileInstance) 
 
     returnDictionary = {}
