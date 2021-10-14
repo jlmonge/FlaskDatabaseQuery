@@ -11,7 +11,11 @@ def hello_world():
         #below code: exampleForm is just an imported class.
         #request.form looks at the html in the render_template function.
         # It finds the input given the name 'nm' and returns the user input.
-        form = exampleForm(request.form["nm"])
-        print(form.nm) #prints recieved user input on terminal
+        search_input = exampleForm(request.form["nm"])
+        category_input = exampleForm(request.form["category"])
+        print(search_input.nm , category_input.nm) #prints recieved user input on terminal
     return render_template('homePage.html')
-
+    
+    
+if __name__ == "__app_interface.py__":
+  app.run(debug=True)
