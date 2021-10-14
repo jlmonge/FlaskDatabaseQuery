@@ -1,0 +1,19 @@
+{% extends "layout.html" %} <!-- retrieve layout -->
+{% block content %} <!-- lines up with the "block content" in layout.html -->
+<div class="page-content">
+{% if projects %}
+    {% for project in projects %}
+    <div class="result">
+        <p>ID: {{ project.get('ID') }}</p>
+        <p>Name: {{ project.get('name') }}</p>
+        <p>Main category: {{ project.get('main_category') }}</p>
+        <p>Launched: {{ project.get('launched') }}</p>
+        <p>State: {{ project.get('state') }}</p>
+        <p>USD pledged: {{ project.get('usd_pledged_real') }}</p>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>Project not found</p>
+{% endif %}
+</div>
+{% endblock content %} <!-- indicates "block content" is done -->
