@@ -23,6 +23,8 @@ def search_id():
         # It finds the input given the name 'nm' and returns the user input.
         #form = exampleForm(request.form["id"])
         id = request.form.get('id')
+        if not id or id.isspace():
+            return redirect(request.url)
         #with open('test.txt', 'w') as f:   # needed once we edit values in the json file
             #f.write(id)
         return redirect(url_for('get_id', id=id))
@@ -47,6 +49,8 @@ def search_name():
         # It finds the input given the name 'nm' and returns the user input.
         #form = exampleForm(request.form["nm"])
         name = request.form.get('name')
+        if not name or name.isspace():
+            return redirect(request.url)
         #with open('test.txt', 'w') as f:   # needed once we edit values in the json file
             #f.write(name)
         return redirect(url_for('get_name', name=name))
