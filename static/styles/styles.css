@@ -42,11 +42,12 @@ li a:hover {
 
 .page-content {
     width: 50%;
-    margin: 0 auto;
-    padding: 1px 10px;
-    background-color: gray;
+    margin: 10px auto;
 }
 
-.page-content p {
+.result {
+    background-color: gray;
     text-align: left;
+    padding: 1px 10px;
+    margin: 10px 0;
 }
