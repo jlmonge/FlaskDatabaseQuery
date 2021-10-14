@@ -1,0 +1,53 @@
+body {
+    background-color: rgb(56, 56, 56);
+    color: rgb(255, 255, 255);
+    margin: 0; /* space between (outside of) border and rest of page */
+    padding: 0; /* space between content and (inside of) border */
+    text-align: center;
+}
+
+/* properties of navbar */
+ul {
+    background-color: rgb(205, 255, 68);
+    list-style-type: none; /* setting for bullet points */
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* setting for content that is too large to fit in a place */
+}
+
+/* properties of navbar buttons */
+li {
+    float: left; /* moves buttons to the left side of the navbar */
+}
+
+/* properties of the text inside the navbar buttons */
+li a {
+    color: rgb(0, 0, 0);
+    display: block;
+    text-align: center;
+    padding: 20px 15px;
+    text-decoration: none;
+    
+}
+
+.icon {
+    width: 18px;
+    height: auto;
+}
+
+/* changes background color of navbar button when putting cursor over it */
+li a:hover {
+    background-color: rgb(92, 244, 255);
+}
+
+.page-content {
+    width: 50%;
+    margin: 10px auto;
+}
+
+.result {
+    background-color: gray;
+    text-align: left;
+    padding: 1px 10px;
+    margin: 10px 0;
+}
