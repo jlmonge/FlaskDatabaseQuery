@@ -68,6 +68,84 @@ def get_name(name):
                 projects.append(proj)
     return render_template('get-name.html', projects=projects)
 
+@app.route("/category", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
+def search_category():
+    if request.method == 'POST': # will only run below code if client is posting
+        # below code: exampleForm is just an imported class.
+        # request.form looks at the html in the render_template function.
+        # It finds the input given the name 'nm' and returns the user input.
+        #form = exampleForm(request.form["id"])
+        category = request.form.get('category')
+        if not category or category.isspace():
+            return redirect(request.url)
+        #with open('test.txt', 'w') as f:   # needed once we edit values in the json file
+            #f.write(id)
+        return redirect(url_for('get_category', category=category))
+    return render_template('search-category.html')
+
+@app.route("/category/<category>")
+def get_category(category):
+    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    project = {} # the project being looked for
+    with open(file, encoding='utf-8-sig') as json_file:
+        data = json.load(json_file) # json --> dictionary
+        projects = catagory_search(category)
+
+    return render_template('get-name.html', projects=projects)
+
+
+
+@app.route("/state", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
+def search_state():
+    if request.method == 'POST': # will only run below code if client is posting
+        # below code: exampleForm is just an imported class.
+        # request.form looks at the html in the render_template function.
+        # It finds the input given the name 'nm' and returns the user input.
+        #form = exampleForm(request.form["id"])
+        state = request.form.get('state')
+        if not state or state.isspace():
+            return redirect(request.url)
+        #with open('test.txt', 'w') as f:   # needed once we edit values in the json file
+            #f.write(id)
+        return redirect(url_for('get_state', state=state))
+    return render_template('search-state.html')
+
+@app.route("/state/<state>")
+def get_state(state):
+    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    project = {} # the project being looked for
+    with open(file, encoding='utf-8-sig') as json_file:
+        data = json.load(json_file) # json --> dictionary
+        projects = state_search(state)
+
+    return render_template('get-name.html', projects=projects)
+
+
+@app.route("/month", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
+def search_month():
+    if request.method == 'POST': # will only run below code if client is posting
+        # below code: exampleForm is just an imported class.
+        # request.form looks at the html in the render_template function.
+        # It finds the input given the name 'nm' and returns the user input.
+        #form = exampleForm(request.form["id"])
+        month = request.form.get('month')
+        if not month or month.isspace():
+            return redirect(request.url)
+        #with open('test.txt', 'w') as f:   # needed once we edit values in the json file
+            #f.write(id)
+        return redirect(url_for('get_month', month=month))
+    return render_template('search-month.html')
+
+@app.route("/month/<month>")
+def get_month(month):
+    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    project = {} # the project being looked for
+    with open(file, encoding='utf-8-sig') as json_file:
+        data = json.load(json_file) # json --> dictionary
+        projects = launched_month_search(month)
+
+    return render_template('get-name.html', projects=projects)
+
 '''
 @app.route("/id/<id>/edit") # needed to edit later on
 def set_id()
