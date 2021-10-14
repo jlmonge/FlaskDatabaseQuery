@@ -42,7 +42,7 @@ def launched_month_search(wanted_month):#DATE MUST BE PASSED IN AS A STRING WITH
     returnDictionary = list()
 
     for key in dictonary:
-        if key['launched'][5:7] == wanted_month:
+        if key['launched'][0:7] == wanted_month:
             returnDictionary.append(key)
 
     fileInstance.close()
