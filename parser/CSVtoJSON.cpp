@@ -107,8 +107,7 @@ std::vector<std::string> prepareCats(std::ifstream& in) {
         for (unsigned i = 0; i < firstLine.size(); ++i) {
             if (firstLine.at(i) == '\"') { catBuilder.append("\\\""); }
             else if (firstLine.at(i) == '\\') { catBuilder.append("\\\\"); }
-            else if (firstLine.at(i) == '\'') { catBuilder.append("\\\'"); }
-            else if (firstLine.at(i) != ',') { catBuilder.push_back(firstLine.at(i)); }
+            else if (firstLine.at(i) != ',' && static_cast<int>(firstLine.at(i)) > 31) { catBuilder.push_back(firstLine.at(i)); }
             else {
                 retVec.push_back(catBuilder);
                 std::cout << "   " << retVec.size() << ".   " << retVec.back() << "\n";
@@ -189,8 +188,7 @@ void readCurrentLine(bool vis, std::string& ref, std::vector<std::string>& bin) 
     for (unsigned i = 0; i < ref.size(); ++i) {
         if (ref.at(i) == '\"') { val.append("\\\""); }
         else if (ref.at(i) == '\\') { val.append("\\\\"); }
-        else if (ref.at(i) == '\'') { val.append("\\\'"); }
-        else if (ref.at(i) != ',') { val.push_back(ref.at(i)); }
+        else if (ref.at(i) != ',' && static_cast<int>(ref.at(i)) > 31) { val.push_back(ref.at(i)); }
         else {
             bin.push_back(val);
             if (vis) { std::cout << "   " << bin.size() << ".   " << bin.back() << "\n"; }
