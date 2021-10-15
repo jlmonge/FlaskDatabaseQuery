@@ -79,12 +79,13 @@ std::vector<std::string> prepareCats(std::ifstream& in) {
     std::string firstLine;
     std::getline(in, firstLine);
 
-    std::cout << "\nCatergories:\n";
+    std::cout << "\nCategories:\n";
 
     if (in.good()) {
         std::string catBuilder = "";
         for (unsigned i = 0; i < firstLine.size(); ++i) {
-            if (firstLine.at(i) != ',') { catBuilder.push_back(firstLine.at(i)); }
+            if (firstLine.at(i) == '\"') { catBuilder.append("\\\""); }
+            else if (firstLine.at(i) != ',') { catBuilder.push_back(firstLine.at(i)); }
             else {
                 retVec.push_back(catBuilder);
                 std::cout << "   " << retVec.size() << ".   " << retVec.back() << "\n";
@@ -140,7 +141,8 @@ std::string indent(unsigned int amt) {
 void readCurrentLine(bool vis, std::string& ref, std::vector<std::string>& bin) {
     std::string val = "";
     for (unsigned i = 0; i < ref.size(); ++i) {
-        if (ref.at(i) != ',') { val.push_back(ref.at(i)); }
+        if (ref.at(i) == '\"') { val.append("\\\""); }
+        else if (ref.at(i) != ',') { val.push_back(ref.at(i)); }
         else {
             bin.push_back(val);
             if (vis) { std::cout << "   " << bin.size() << ".   " << bin.back() << "\n"; }
