@@ -3,5 +3,6 @@ parser/Files/input/demo.csv
 parser/Files/input/test-sample.csv
 parser/Files/output/demo.json
 parser/Files/output/test-sample.json
+__pycache__/*
 *.pyc
 .DS_Store
