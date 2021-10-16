@@ -20,11 +20,29 @@ def indexPage():
 def search():
     if request.method == 'POST': # will only run below code if client is posting
         choiceSearch = request.form.get('choice')
-        if not choice or choice.isspace():
+        if not choiceSearch or choiceSearch.isspace():
             return redirect(request.url)
-        return redirect(url_for('get_id', id=id))
+        #return redirect(url_for('get_id', id=id))
     return render_template('searches.html')
 
+
+@app.route("/delete",methods=['POST','GET'])
+def delete_kickstarter():
+    if request.method == 'POST': # will only run below code if client is posting
+        deleteChoice = request.form.get('id_to_delete')
+        if not deleteChoice or deleteChoice.isspace():
+            return redirect(request.url)
+        return redirect(url_for('do_delete', id_to_delete=id_to_delete))
+    return render_template('deleteKickstarter.html')
+
+@app.route("/delete/<id_to_delete>",methods=['POST','GET'])
+def do_delete(id_to_delete):
+    #YOUR CODE HERE
+    deleteSuccessful = True
+    if deleteSuccessful:
+        return render_template('delete-sucess.html')
+    else:
+        return render_template('delete-fail.html')
 
 @app.route("/id", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
 def search_id():
