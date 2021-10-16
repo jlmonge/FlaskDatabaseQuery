@@ -16,6 +16,9 @@ int main() {
     std::cout << "Please ensure your .CSV file is in the correct location before starting.\n"
               << "         File path: .\\Files\\input\\" << std::endl;
 
+    //----- Error Check -----
+    //  Runs the prepareFiles() function until the user aborts the program or inputs a correct title.
+    //-----------
     while (!prepareFiles(reader, writer)) {
         std::cout << "There was an error opening your files.\nPlease try again, or use CTRL + C to abort." << std::endl;
         reader.close();
@@ -23,9 +26,14 @@ int main() {
         reader.clear();
         writer.clear();
     }
+    //-----------------------
 
-    std::vector<std::string> catergories = prepareCats(reader);
+    std::vector<std::string> categories = prepareCats(reader);
 
+    //----- Visual Toggle -----
+    //  Prompts the user on whether or not they would like to see the data during the process.
+    //  Has built-in error checking to prevent invalid input.
+    //------------
     char choice;
     bool visuals = false;
     std::cout << "\nThe program is ready to translate your file.\n"
@@ -36,9 +44,10 @@ int main() {
         std::cin >> choice;
     }
     if (choice == 'Y') { visuals = true; }
+    //-------------------------
     
     std::cout << "\nNow translating...\n";
-    unsigned long total = parse(visuals, reader, writer, catergories);
+    unsigned long total = parse(visuals, reader, writer, categories);
 
     reader.close();
     writer.close();
@@ -50,6 +59,11 @@ int main() {
     return 0;
 }
 
+//----- prepareFiles() -----
+//  Passes in an input stream by reference and an output stream by reference.
+//  Prompts the user for a file name, then attempts to open that file for both instream and outstream.
+//  Returns TRUE if opening the file was successful, FALSE otherwise.
+//------------
 bool prepareFiles(std::ifstream& in, std::ofstream& out) {
     std::string inFile = ".\\Files\\input\\";
     std::string outFile = ".\\Files\\output\\";
@@ -72,19 +86,28 @@ bool prepareFiles(std::ifstream& in, std::ofstream& out) {
     if (in.fail() || out.fail()) { return false; }
     else { return true; }
 }
+//--------------------------
 
+//----- prepareCats() -----
+//  Passes in an input stream by reference.
+//  Reads the first line of the csv file and creates a vector of strings containing all of the first values (categories)
+//  Requires that the passed-in input stream already has a file opened.
+//  Returns the completed vector of category strings.
+//------------
 std::vector<std::string> prepareCats(std::ifstream& in) {
     std::vector<std::string> retVec;
     retVec.reserve(15);
     std::string firstLine;
     std::getline(in, firstLine);
 
-    std::cout << "\nCatergories:\n";
+    std::cout << "\nCategories:\n";
 
     if (in.good()) {
         std::string catBuilder = "";
         for (unsigned i = 0; i < firstLine.size(); ++i) {
-            if (firstLine.at(i) != ',') { catBuilder.push_back(firstLine.at(i)); }
+            if (firstLine.at(i) == '\"') { catBuilder.append("\\\""); }
+            else if (firstLine.at(i) == '\\') { catBuilder.append("\\\\"); }
+            else if (firstLine.at(i) != ',' && static_cast<int>(firstLine.at(i)) > 31) { catBuilder.push_back(firstLine.at(i)); }
             else {
                 retVec.push_back(catBuilder);
                 std::cout << "   " << retVec.size() << ".   " << retVec.back() << "\n";
@@ -100,7 +123,16 @@ std::vector<std::string> prepareCats(std::ifstream& in) {
 
     return retVec;
 }
+//-------------------------
 
+//----- parse() -----
+//  Passes in a boolean, input stream by reference, output stream by reference, and vector of category strings by reference.
+//  Reads and formats .csv data into the corresponding .json file.
+//  Calls readCurrentLine() to copy correct data values.
+//  If passed-in boolean is TRUE, prints the number of each line in the .csv as it is read. Prints nothing otherwise.
+//  Requires that the passed-in input and output streams already have a file opened.
+//  Returns the number of .csv lines that were translated.
+//---------
 unsigned long parse(bool vis, std::ifstream& in, std::ofstream& out, std::vector<std::string>& cats) {
     unsigned long retVal = 0;
     unsigned int tab = 1;
@@ -128,7 +160,13 @@ unsigned long parse(bool vis, std::ifstream& in, std::ofstream& out, std::vector
 
     return retVal;
 }
+//-------------------
 
+//----- indent() -----
+//  Helper function for parse().
+//  Passes in an unsigned integer.
+//  Returns a string containing that many tabs.
+//----------
 std::string indent(unsigned int amt) {
     std::string retVal = "";
     for (unsigned i = 0; i < amt; ++i) {
@@ -136,11 +174,21 @@ std::string indent(unsigned int amt) {
     }
     return retVal;
 }
+//---------------------
 
+//----- readCurrentLine() -----
+//  Helper function for parse().
+//  Passes in a boolean, string by reference, and vector of strings by reference.
+//  Reads the string in .csv format, splices the data into the vector of strings.
+//  If passed-in boolean is TRUE, outputs the data as it is being spliced. Prints nothing otherwise.
+//  Returns nothing.
+//--------------
 void readCurrentLine(bool vis, std::string& ref, std::vector<std::string>& bin) {
     std::string val = "";
     for (unsigned i = 0; i < ref.size(); ++i) {
-        if (ref.at(i) != ',') { val.push_back(ref.at(i)); }
+        if (ref.at(i) == '\"') { val.append("\\\""); }
+        else if (ref.at(i) == '\\') { val.append("\\\\"); }
+        else if (ref.at(i) != ',' && static_cast<int>(ref.at(i)) > 31) { val.push_back(ref.at(i)); }
         else {
             bin.push_back(val);
             if (vis) { std::cout << "   " << bin.size() << ".   " << bin.back() << "\n"; }
@@ -149,3 +197,4 @@ void readCurrentLine(bool vis, std::string& ref, std::vector<std::string>& bin) 
     }
     if (vis) { std::cout << std::endl; }
 }
+//------------------------------
