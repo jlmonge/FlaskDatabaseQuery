@@ -16,6 +16,16 @@ app = Flask(__name__) # neccessary for flask
 def indexPage():
     return render_template('index.html')
 
+@app.route("/search",methods=['POST','GET'])
+def search():
+    if request.method == 'POST': # will only run below code if client is posting
+        choiceSearch = request.form.get('choice')
+        if not choice or choice.isspace():
+            return redirect(request.url)
+        return redirect(url_for('get_id', id=id))
+    return render_template('searches.html')
+
+
 @app.route("/id", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
 def search_id():
     if request.method == 'POST': # will only run below code if client is posting
@@ -145,6 +155,9 @@ def get_month(month):
         projects = launched_month_search(month)
 
     return render_template('get-name.html', projects=projects)
+
+
+
 
 '''
 @app.route("/id/<id>/edit") # needed to edit later on

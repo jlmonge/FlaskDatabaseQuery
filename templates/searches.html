@@ -1,0 +1,17 @@
+{% extends "layout.html" %} <!-- retrieve layout -->
+{% block content %} <!-- lines up with the "block content" in layout.html -->
+<div class="page-content">
+   <form action="" method="POST">
+      <!-- p tag represents a paragraph.(seperate block of text) -->
+      <p>Search by state:</p>
+      <!-- input is how we get forms from users -->
+      <!-- "type" how we are recieving input.("submit is a button, text is a bar") -->
+      <!-- "name" the name of the text request.form looks for -->
+      <p><input type="button" name="Search ID" onclick="window.location.href = \"/id\";"></p>
+      <p><input type="button" name="Search Month" onclick="window.location.href = \"/month\";"></p>
+      <p><input type="button" name="Search Name" onclick="window.location.href = \"/name\";"></p>
+      <p><input type="button" name="Search State" onclick="window.location.href = \"/state\";"></p>
+      <p><input type="button" name="Search Category"onclick="window.location.href = \"/category\";"></p>
+   </form>
+</div>
+{% endblock content %} <!-- indicates "block content" is done -->
