@@ -2,7 +2,7 @@ import os
 import json
 import io
 from flask import Flask, render_template, request, redirect, url_for #imports from flask
-from userInput import exampleForm # import forms here. We import these to keep ourselves organized.
+from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
 from category_searches import catagory_search, state_search, launched_month_search, highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
@@ -32,17 +32,38 @@ def delete_kickstarter():
         deleteChoice = request.form.get('id_to_delete')
         if not deleteChoice or deleteChoice.isspace():
             return redirect(request.url)
-        return redirect(url_for('do_delete', id_to_delete=id_to_delete))
+        return redirect(url_for('do_delete', id_to_delete=deleteChoice))
     return render_template('deleteKickstarter.html')
 
-@app.route("/delete/<id_to_delete>",methods=['POST','GET'])
+@app.route("/delete/<id_to_delete>")
 def do_delete(id_to_delete):
     #YOUR CODE HERE
     deleteSuccessful = True
     if deleteSuccessful:
-        return render_template('delete-sucess.html')
+        return render_template('sentanceMessage.html',message = "Successfully deleted Kickstarter")
     else:
-        return render_template('delete-fail.html')
+        return render_template('sentanceMessage.html',message = "Could not find ID")
+
+
+@app.route("/update",methods=['POST','GET'])#NOT WORKING
+def update_kickstarter():
+    if request.method == 'POST': # will only run below code if client is posting
+        ksToUpdate = kickStarterForm(request.form.get('id'),request.form.get('name'),request.form.get('category'),request.form.get('main_category'),request.form.get('currency'),
+        request.form.get('deadline'),request.form.get('date_launched'),request.form.get('number_pledged'),request.form.get('state'),request.form.get('number_backers'),
+        request.form.get('country'), request.form.get('amount_usd_pledged'))
+        if not len(ksToUpdate.error_msgs) == 0:
+            return render_template('sentanceMessage.html',message = "Error on one or more field")
+        return redirect(url_for('do_Update', ksToUpdate=ksToUpdate))
+    return render_template('updateKickstarter.html')
+
+@app.route("/update/perform")#NOR WORKING
+def do_Update(ksToUpdate):
+    #YOUR CODE HERE
+    deleteSuccessful = True
+    if deleteSuccessful:
+        return render_template('sentanceMessage.html',message = "Successfully updated Kickstarter")
+    else:
+        return render_template('sentanceMessage.html',message = "error")
 
 @app.route("/id", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
 def search_id():

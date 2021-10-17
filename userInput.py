@@ -66,7 +66,7 @@ class kickStarterForm:
         self.number_backers = number_backers
         self.country = country
         self.amount_usd_pledged = amount_usd_pledged# the actual cash
-        self.error_msg = errorRunner()#if error_msg is not equal to "passed" then an error occured
+        self.error_msgs = errorRunner()#if error_msg is not equal to "passed" then an error occured
 
 
 
