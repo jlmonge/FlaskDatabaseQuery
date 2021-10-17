@@ -82,7 +82,7 @@ def search_id():
 
 @app.route("/id/<id>")
 def get_id(id):
-    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    file = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # location of json file
     project = {} # the project being looked for
     with open(file, encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
@@ -108,7 +108,7 @@ def search_name():
 
 @app.route("/name/<name>")
 def get_name(name):
-    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    file = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # location of json file
     projects = [] # the project being looked for
     with open(file, encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
@@ -134,7 +134,7 @@ def search_category():
 
 @app.route("/category/<category>")
 def get_category(category):
-    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    file = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # location of json file
     project = {} # the project being looked for
     with open(file, encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
@@ -161,7 +161,7 @@ def search_state():
 
 @app.route("/state/<state>")
 def get_state(state):
-    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    file = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # location of json file
     project = {} # the project being looked for
     with open(file, encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
@@ -187,7 +187,7 @@ def search_month():
 
 @app.route("/month/<month>")
 def get_month(month):
-    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    file = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # location of json file
     project = {} # the project being looked for
     with open(file, encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
