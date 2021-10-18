@@ -44,9 +44,10 @@ class kickStarterForm:
     def errorRunner(self):
         errorList = list()#create an instant of the errorList to pass back
         currentError = ""#use it to track the current error
-        currentError = empty_error()
+        currentError = self.empty_error()
         if currentError != "passed": #if an error does not return "passed" we append it to the list.
             errorList.append(currentError)
+        return errorList
         #other errors are placed below here to be ran on form init
 
 
@@ -60,13 +61,14 @@ class kickStarterForm:
         self.main_category = main_category #print
         self.currency = currency #the type of currency
         self.deadline = deadline
+        self.goal = goal
         self.date_launched = date_launched
         self.number_pledged = number_pledged #the number of times someone has pledged
         self.state = state
         self.number_backers = number_backers
         self.country = country
         self.amount_usd_pledged = amount_usd_pledged# the actual cash
-        self.error_msgs = errorRunner()#if error_msg is not equal to "passed" then an error occured
+        self.error_msgs = self.errorRunner()#if error_msg is not equal to "passed" then an error occured
 
 
 
