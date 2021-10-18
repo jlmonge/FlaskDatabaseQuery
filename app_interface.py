@@ -11,6 +11,7 @@ from category_searches import catagory_search, state_search, launched_month_sear
 # export FLASK_DEBUG=1
 
 app = Flask(__name__) # neccessary for flask
+databaseFile = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # Location of our file. Call it in functions rather than writing this whole thing out again
 
 @app.route("/") # creates "/" directory for homepage
 def indexPage():
@@ -37,8 +38,7 @@ def delete_kickstarter():
 
 @app.route("/delete/<id_to_delete>")
 def do_delete(id_to_delete):
-    dataFile = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json')
-    with open(dataFile, "r+") as file:
+    with open(databaseFile, "r+") as file:
         located = False
         pos = 0
         data = json.load(file)
@@ -97,9 +97,8 @@ def search_id():
 
 @app.route("/id/<id>")
 def get_id(id):
-    file = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # location of json file
     project = {} # the project being looked for
-    with open(file, encoding='utf-8-sig') as json_file:
+    with open(databaseFile, encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
         for proj in data:
             if proj['ID'] == id:
@@ -123,9 +122,8 @@ def search_name():
 
 @app.route("/name/<name>")
 def get_name(name):
-    file = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # location of json file
     projects = [] # the project being looked for
-    with open(file, encoding='utf-8-sig') as json_file:
+    with open(databaseFile, encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
         for proj in data:
             if name.lower() in proj['name'].lower():
@@ -149,9 +147,8 @@ def search_category():
 
 @app.route("/category/<category>")
 def get_category(category):
-    file = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # location of json file
     project = {} # the project being looked for
-    with open(file, encoding='utf-8-sig') as json_file:
+    with open(databaseFile, encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
         projects = catagory_search(category)
 
@@ -176,9 +173,8 @@ def search_state():
 
 @app.route("/state/<state>")
 def get_state(state):
-    file = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # location of json file
     project = {} # the project being looked for
-    with open(file, encoding='utf-8-sig') as json_file:
+    with open(databaseFile, encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
         projects = state_search(state)
 
@@ -202,9 +198,8 @@ def search_month():
 
 @app.route("/month/<month>")
 def get_month(month):
-    file = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # location of json file
     project = {} # the project being looked for
-    with open(file, encoding='utf-8-sig') as json_file:
+    with open(databaseFile, encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
         projects = launched_month_search(month)
 
