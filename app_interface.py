@@ -37,12 +37,27 @@ def delete_kickstarter():
 
 @app.route("/delete/<id_to_delete>")
 def do_delete(id_to_delete):
-    #YOUR CODE HERE
-    deleteSuccessful = True
-    if deleteSuccessful:
-        return render_template('sentanceMessage.html',message = "Successfully deleted Kickstarter")
-    else:
-        return render_template('sentanceMessage.html',message = "Could not find ID")
+    dataFile = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json')
+    with open(dataFile, "r+") as file:
+        located = False
+        pos = 0
+        data = json.load(file)
+        for i in data:
+            if i['ID'] == id_to_delete:
+                located = True
+                break
+            else:
+                pos += 1
+        if located:
+            data.pop(pos)
+            file.seek(0)
+            json.dump(data, file, indent = 4)
+            file.truncate()
+            successMessage = "Project %s was deleted successfully."%id_to_delete
+            return render_template('sentanceMessage.html',message = successMessage)
+        else:
+            errorMessage = "Error: Project %s could not be found!"%id_to_delete
+            return render_template('sentanceMessage.html',message = errorMessage)
 
 
 @app.route("/update",methods=['POST','GET'])#NOT WORKING
@@ -59,8 +74,8 @@ def update_kickstarter():
 @app.route("/update/<ksToUpdate>")#NOR WORKING
 def do_Update(ksToUpdate):
     #YOUR CODE HERE
-    deleteSuccessful = True
-    if deleteSuccessful:
+    updateSuccessful = True
+    if updateSuccessful:
         return render_template('sentanceMessage.html',message = "Successfully updated Kickstarter")
     else:
         return render_template('sentanceMessage.html',message = "error")
