@@ -1,0 +1,26 @@
+{% extends "layout.html" %} <!-- retrieve layout -->
+{% block content %} <!-- lines up with the "block content" in layout.html -->
+<div class="page-content">
+   <form action="" method="POST">
+      <!-- p tag represents a paragraph.(seperate block of text) -->
+      <!-- input is how we get forms from users -->
+      <!-- "type" how we are recieving input.("submit is a button, text is a bar") -->
+      <!-- "name" the name of the text request.form looks for -->
+      <p>ID of project that will be edited: <input type="number" name="id_to_edit"></p>
+      <br>
+      <p>New ID: <input type="number" name="new_id"></p>
+      <p>New name: <input type="text" name="new_name"></p>
+      <p>New category: <input type="text" name="new_category"></p>
+      <p>New main category: <input type="text" name="new_main_category"></p>
+      <p>New currency: <input type="text" name="new_currency"></p>
+      <p>New deadline: <input type="text" name="new_deadline"></p>
+      <p>New goal: <input type="text" name="new_goal"></p>
+      <p>New launched: <input type="text" name="new_launched"></p>
+      <p>New pledged: <input type="text" name="new_pledged"></p>
+      <p>New state: <input type="text" name="new_state"></p>
+      <p>New backers: <input type="text" name="new_backers"></p>
+      <p>New country: <input type="text" name="new_country"></p>
+      <p><input type="submit" value="Submit"></p>
+   </form>
+</div>
+{% endblock content %} <!-- indicates "block content" is done -->
