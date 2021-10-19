@@ -53,15 +53,35 @@ def update_kickstarter():
         request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'))
         if not len(ksToUpdate.error_msgs) == 0:
             return render_template('sentanceMessage.html',message = "Error on one or more field")
-        return redirect(url_for('do_Update', ksToUpdate=ksToUpdate))
+        return redirect(url_for('do_update', ksToUpdate=ksToUpdate))
     return render_template('updateKickstarter.html')
 
 @app.route("/update/<ksToUpdate>")#NOR WORKING
-def do_Update(ksToUpdate):
+def do_update(ksToUpdate):
     #YOUR CODE HERE
     deleteSuccessful = True
     if deleteSuccessful:
         return render_template('sentanceMessage.html',message = "Successfully updated Kickstarter")
+    else:
+        return render_template('sentanceMessage.html',message = "error")
+
+@app.route("/add",methods=['POST','GET'])#NOT WORKING
+def add_kickstarter():
+    if request.method == 'POST': # will only run below code if client is posting
+        ksToAdd = kickStarterForm(request.form.get('id'),request.form.get('name'),request.form.get('category'),request.form.get('main_category'),request.form.get('currency'),
+        request.form.get('deadline'),request.form.get('goal'),request.form.get('date_launched'),request.form.get('number_pledged'),request.form.get('state'),
+        request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'))
+        if not len(ksToAdd.error_msgs) == 0:
+            return render_template('sentanceMessage.html',message = "Error on one or more field")
+        return redirect(url_for('do_add', ksToAdd=ksToAdd))
+    return render_template('addKickstarter.html')
+
+@app.route("/add/<ksToAdd>")#NOR WORKING
+def do_add(ksToAdd):
+    #YOUR CODE HERE
+    addSuccessful = True
+    if addSuccessful:
+        return render_template('sentanceMessage.html',message = "Successfully added Kickstarter")
     else:
         return render_template('sentanceMessage.html',message = "error")
 
