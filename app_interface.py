@@ -8,8 +8,11 @@ from userInput import exampleForm # import forms here. We import these to keep o
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
+# py -m venv env
+# env/Scripts/Activate
 # export FLASK_APP=app_interface.py
 # export FLASK_DEBUG=1
+# flask run
 
 def search_helper(key, method="GET"):
     if method == 'POST': # will only run below code if client is posting
@@ -68,6 +71,7 @@ def results(key, value):
 def edit_project():
     if request.method == 'POST':
         id = request.form.get('id_to_edit')
+        # these if statements prevent flask errors when any new value is left blank
         if not id or id.isspace():
             return redirect(request.url)
         new_id = request.form.get('new_id')
@@ -119,46 +123,56 @@ def edit_project():
 def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency, new_deadline, new_goal, 
     new_launched, new_pledged, new_state, new_backers, new_country):
     file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
-    project = {} # the project being looked for
-    with open(file, encoding='utf-8-sig') as json_file:
+    projectFound = False # the project being looked for
+    pos = 0
+    with open(file, 'r', encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
         for proj in data:
             if id == proj.get('ID'):
-                project = proj
+                projectFound = True
+                # these if statements prevent flask errors when any new value is left blank
+                if new_id != '\n':
+                    data[pos]['ID'] = new_id 
+                if new_name != '\n':
+                    data[pos]['name'] = new_name
+                if new_category != '\n':
+                    data[pos]['category'] = new_category
+                if new_main_category != '\n':
+                    data[pos]['main_category'] = new_main_category
+                if new_currency != '\n':
+                    data[pos]['currency'] = new_currency
+                if new_deadline != '\n':
+                    data[pos]['deadline'] = new_deadline
+                if new_goal != '\n':
+                    data[pos]['goal'] = new_goal
+                if new_launched != '\n':
+                    data[pos]['launched'] = new_launched
+                if new_pledged != '\n':
+                    data[pos]['pledged'] = new_pledged
+                if new_state != '\n':
+                    data[pos]['state'] = new_state
+                if new_backers != '\n':
+                    data[pos]['backers'] = new_backers
+                if new_country != '\n':
+                    data[pos]['country'] = new_country
                 break
-        if not project:
-            return 'edit-failure.html'
+            else:
+                pos += 1
+        if projectFound:
+            print("got here")
+        else:
+            return render_template('edit-failure.html')
+    
+    with open(file, 'w', encoding='utf-8-sig') as json_file:
+        json.dump(data, json_file, indent=4)
+    '''
     print(proj)
     print(new_id, new_name, new_category, new_main_category, new_currency, new_deadline, new_goal, new_launched, \
         new_pledged, new_state, new_backers, new_country)
-    if new_id != '\n':
-        proj['ID'] = new_id
-    if new_name != '\n':
-        proj['name'] = new_name
-    if new_category != '\n':
-        proj['category'] = new_category
-    if new_main_category != '\n':
-        proj['main_category'] = new_main_category
-    if new_currency != '\n':
-        proj['currency'] = new_currency
-    if new_deadline != '\n':
-        proj['deadline'] = new_deadline
-    if new_goal != '\n':
-        proj['goal'] = new_goal
-    if new_launched != '\n':
-        proj['launched'] = new_launched
-    if new_pledged != '\n':
-        proj['pledged'] = new_pledged
-    if new_state != '\n':
-        proj['state'] = new_state
-    if new_backers != '\n':
-        proj['backers'] = new_backers
-    if new_country != '\n':
-        proj['country'] = new_country
     print(proj['ID'], proj['name'], proj['category'], proj['main_category'], proj['currency'], proj['deadline'], \
         proj['goal'], proj['launched'], proj['pledged'], proj['state'], proj['backers'], proj['country'])
-    
-    return render_template('edit-success.html', project=project)
+    '''
+    return render_template('edit-success.html', project=proj)
 
 '''
 @app.route("/id/<id>/edit") # needed to edit later on

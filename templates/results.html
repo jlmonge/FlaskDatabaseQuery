@@ -2,6 +2,7 @@
 {% block content %} <!-- lines up with the "block content" in layout.html -->
 <div class="page-content">
 {% if projects %}
+    <!-- uncomment this in next sprint <p>{{ projects | length }} results found</p> -->
     {% for project in projects %}
     <div class="result">
         <p>ID: {{ project.get('ID') }}</p>

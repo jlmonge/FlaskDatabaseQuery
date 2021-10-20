@@ -13,12 +13,13 @@
       <p>New category: <input type="text" name="new_category"></p>
       <p>New main category: <input type="text" name="new_main_category"></p>
       <p>New currency: <input type="text" name="new_currency"></p>
-      <p>New deadline: <input type="text" name="new_deadline"></p>
-      <p>New goal: <input type="text" name="new_goal"></p>
+      <p>New deadline: <input type="date" name="new_deadline"></p>
+      <p>New goal: <input type="number" name="new_goal"></p>
+      <!-- change to input type="datetime-local", then convert time to 24hr in flask -->
       <p>New launched: <input type="text" name="new_launched"></p>
-      <p>New pledged: <input type="text" name="new_pledged"></p>
+      <p>New pledged: <input type="number" name="new_pledged"></p> 
       <p>New state: <input type="text" name="new_state"></p>
-      <p>New backers: <input type="text" name="new_backers"></p>
+      <p>New backers: <input type="number" name="new_backers"></p>
       <p>New country: <input type="text" name="new_country"></p>
       <p><input type="submit" value="Submit"></p>
    </form>
