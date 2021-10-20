@@ -5,3 +5,4 @@ parser/Files/output/demo.json
 parser/Files/output/test-sample.json
 *.pyc
 .DS_Store
+test.json
