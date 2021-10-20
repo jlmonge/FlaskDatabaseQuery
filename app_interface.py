@@ -124,48 +124,46 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
     new_launched, new_pledged, new_state, new_backers, new_country):
     file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
     projectFound = False # the project being looked for
-    pos = 0
-    with open(file, 'r', encoding='utf-8-sig') as json_file:
+    with open(file, 'r+', encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
         for proj in data:
             if id == proj.get('ID'):
                 projectFound = True
                 # these if statements prevent flask errors when any new value is left blank
                 if new_id != '\n':
-                    data[pos]['ID'] = new_id 
+                    proj['ID'] = new_id 
                 if new_name != '\n':
-                    data[pos]['name'] = new_name
+                    proj['name'] = new_name
                 if new_category != '\n':
-                    data[pos]['category'] = new_category
+                    proj['category'] = new_category
                 if new_main_category != '\n':
-                    data[pos]['main_category'] = new_main_category
+                    proj['main_category'] = new_main_category
                 if new_currency != '\n':
-                    data[pos]['currency'] = new_currency
+                    proj['currency'] = new_currency
                 if new_deadline != '\n':
-                    data[pos]['deadline'] = new_deadline
+                    proj['deadline'] = new_deadline
                 if new_goal != '\n':
-                    data[pos]['goal'] = new_goal
+                    proj['goal'] = new_goal
                 if new_launched != '\n':
-                    data[pos]['launched'] = new_launched
+                    proj['launched'] = new_launched
                 if new_pledged != '\n':
-                    data[pos]['pledged'] = new_pledged
+                    proj['pledged'] = new_pledged
                 if new_state != '\n':
-                    data[pos]['state'] = new_state
+                    proj['state'] = new_state
                 if new_backers != '\n':
-                    data[pos]['backers'] = new_backers
+                    proj['backers'] = new_backers
                 if new_country != '\n':
-                    data[pos]['country'] = new_country
+                    proj['country'] = new_country
                 break
-            else:
-                pos += 1
-        if projectFound:
-            print("got here")
-        else:
+        if not projectFound:
             return render_template('edit-failure.html')
     
+        json_file.seek(0)
+        json.dump(data, json_file, indent=4)
+        json_file.truncate()
+    '''
     with open(file, 'w', encoding='utf-8-sig') as json_file:
         json.dump(data, json_file, indent=4)
-    '''
     print(proj)
     print(new_id, new_name, new_category, new_main_category, new_currency, new_deadline, new_goal, new_launched, \
         new_pledged, new_state, new_backers, new_country)
