@@ -4,7 +4,8 @@ import json
 
 #pass in strings or the format of the JSON WILL NOT HAVE STRINGS IN IT !!
 def add_to_json(ID, name, category, main_category, currency, deadline, goal, launched, pledged, state, backers, country, usd_pledged, usd_pledged_real ):
-    filename = 'test.json'
+
+    filename = 'WORKING-2018ksprojects.json'
     entry = {
         "ID": ID,
 		"name": name,
@@ -30,4 +31,4 @@ def add_to_json(ID, name, category, main_category, currency, deadline, goal, lau
         json.dump(data, file)
 
 #test case
-#add_to_json("999988282","Nou Renmen Ayiti!  We Love Haiti!", "Performance Art", "Art", "USD", "2011-08-16","2000.00", "2011-07-19 09:07:47","524.00","failed", "17", "US", "524.00", "524.00", "0")
+#add_to_json("999320001988282","TEST69420", "Performance Art", "Art", "USD", "2011-08-16","2000.00", "2011-07-19 09:07:47","524.00","failed", "17", "US", "524.00", "524.00")
