@@ -39,6 +39,8 @@ class kickStarterForm:
             return "error: empty country"
         if self.amount_usd_pledged == "":
             return "error: empty amount_usd_pledged"
+        if self.amount_usd_pledged_real == "":
+            return "error: empty amount of real usd pledged"
         return "passed"
 
     def errorRunner(self):
@@ -54,7 +56,7 @@ class kickStarterForm:
 
 
 
-    def __init__(self,id,name,category,main_category,currency,deadline,goal,date_launched,number_pledged,state,number_backers,country,amount_usd_pledged):
+    def __init__(self,id,name,category,main_category,currency,deadline,goal,date_launched,time_launched,number_pledged,state,number_backers,country,amount_usd_pledged,amount_usd_pledged_real):
         self.id = id #print
         self.name = name #print
         self.category = category #print
@@ -62,12 +64,13 @@ class kickStarterForm:
         self.currency = currency #the type of currency
         self.deadline = deadline
         self.goal = goal
-        self.date_launched = date_launched
+        self.date_launched = date_launched + " " + time_launched
         self.number_pledged = number_pledged #the number of times someone has pledged
         self.state = state
         self.number_backers = number_backers
         self.country = country
         self.amount_usd_pledged = amount_usd_pledged# the actual cash
+        self.amount_usd_pledged_real = amount_usd_pledged_real
         self.error_msgs = self.errorRunner()#if error_msg is not equal to "passed" then an error occured
 
 

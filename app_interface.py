@@ -4,6 +4,7 @@ import io
 from flask import Flask, render_template, request, redirect, url_for #imports from flask
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
 from category_searches import catagory_search, state_search, launched_month_search, highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
+from add_function import add_to_json
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
@@ -64,8 +65,8 @@ def do_delete(id_to_delete):
 def update_kickstarter():
     if request.method == 'POST': # will only run below code if client is posting
         ksToUpdate = kickStarterForm(request.form.get('id'),request.form.get('name'),request.form.get('category'),request.form.get('main_category'),request.form.get('currency'),
-        request.form.get('deadline'),request.form.get('goal'),request.form.get('date_launched'),request.form.get('number_pledged'),request.form.get('state'),
-        request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'))
+        request.form.get('deadline'),request.form.get('goal'),request.form.get('date_launched'), request.form.get('time_launched'),request.form.get('number_pledged'),request.form.get('state'),
+        request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'), request.form.get('amount_usd_pledged_real'))
         if not len(ksToUpdate.error_msgs) == 0:
             return render_template('sentanceMessage.html',message = "Error on one or more field")
         return redirect(url_for('do_update', ksToUpdate=ksToUpdate))
@@ -84,21 +85,28 @@ def do_update(ksToUpdate):
 def add_kickstarter():
     if request.method == 'POST': # will only run below code if client is posting
         ksToAdd = kickStarterForm(request.form.get('id'),request.form.get('name'),request.form.get('category'),request.form.get('main_category'),request.form.get('currency'),
-        request.form.get('deadline'),request.form.get('goal'),request.form.get('date_launched'),request.form.get('number_pledged'),request.form.get('state'),
-        request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'))
+        request.form.get('deadline'),request.form.get('goal'),request.form.get('date_launched'), request.form.get('time_launched'),request.form.get('number_pledged'),request.form.get('state'),
+        request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'), request.form.get('amount_usd_pledged_real'))
         if not len(ksToAdd.error_msgs) == 0:
             return render_template('sentanceMessage.html',message = "Error on one or more field")
-        return redirect(url_for('do_add', ksToAdd=ksToAdd))
+        add_to_json(ksToAdd.id, ksToAdd.name, ksToAdd.category, ksToAdd.main_category, ksToAdd.currency, ksToAdd.deadline, ksToAdd.goal, ksToAdd.date_launched, ksToAdd.number_pledged, 
+        ksToAdd.state, ksToAdd.number_backers, ksToAdd.country, ksToAdd.amount_usd_pledged, ksToAdd.amount_usd_pledged_real)
+        #if addSuccessful:
+        return render_template('sentanceMessage.html',message = "Successfully added Kickstarter " + ksToAdd.name)
+        #else:
+         #   return render_template('sentanceMessage.html',message = "error")
+        #return redirect(url_for('do_add', ksToAdd=ksToAdd))
     return render_template('addKickstarter.html')
 
-@app.route("/add/<ksToAdd>")#NOR WORKING
-def do_add(ksToAdd):
-    #YOUR CODE HERE
-    addSuccessful = True
-    if addSuccessful:
-        return render_template('sentanceMessage.html',message = "Successfully added Kickstarter")
-    else:
-        return render_template('sentanceMessage.html',message = "error")
+#@app.route("/add/<ksToAdd>")
+#def do_add(ksToAdd):
+    #print(type(ksToAdd))
+    #addSuccessful = add_to_json(ksToAdd.id, ksToAdd.name, ksToAdd.category, ksToAdd.main_category, ksToAdd.currency, ksToAdd.deadline, ksToAdd.goal, ksToAdd.date_launched, ksToAdd.number_pledged, 
+    #ksToAdd.state, ksToAdd.number_backers, ksToAdd.country, ksToAdd.amount_usd_pledged, ksToAdd.amount_usd_pledged_real)
+    #if addSuccessful:
+    #    return render_template('sentanceMessage.html',message = "Successfully added Kickstarter " + ksToAdd.name)
+    #else:
+    #    return render_template('sentanceMessage.html',message = "error")
 
 @app.route("/id", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
 def search_id():
