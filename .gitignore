@@ -6,4 +6,4 @@ parser/Files/output/test-sample.json
 *.pyc
 .DS_Store
 test.json
-WORKING-2018ksprojects.json
+static/WORKING-2018ksprojects.json
