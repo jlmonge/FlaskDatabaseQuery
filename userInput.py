@@ -57,20 +57,20 @@ class kickStarterForm:
 
 
     def __init__(self,id,name,category,main_category,currency,deadline,goal,date_launched,time_launched,number_pledged,state,number_backers,country,amount_usd_pledged,amount_usd_pledged_real):
-        self.id = id #print
-        self.name = name #print
-        self.category = category #print
-        self.main_category = main_category #print
-        self.currency = currency #the type of currency
-        self.deadline = deadline
-        self.goal = goal
-        self.date_launched = date_launched + " " + time_launched
-        self.number_pledged = number_pledged #the number of times someone has pledged
-        self.state = state
-        self.number_backers = number_backers
-        self.country = country
-        self.amount_usd_pledged = amount_usd_pledged# the actual cash
-        self.amount_usd_pledged_real = amount_usd_pledged_real
+        self.id = str(id) #print
+        self.name = str(name) #print
+        self.category = str(category) #print
+        self.main_category = str(main_category) #print
+        self.currency = str(currency) #the type of currency
+        self.deadline = str(deadline)
+        self.goal = str(goal)
+        self.date_launched = str(date_launched + " " + time_launched)
+        self.number_pledged = str(number_pledged) #the number of times someone has pledged
+        self.state = str(state)
+        self.number_backers = str(number_backers)
+        self.country = str(country)
+        self.amount_usd_pledged = str(amount_usd_pledged)# the actual cash
+        self.amount_usd_pledged_real = str(amount_usd_pledged_real)
         self.error_msgs = self.errorRunner()#if error_msg is not equal to "passed" then an error occured
 
 
