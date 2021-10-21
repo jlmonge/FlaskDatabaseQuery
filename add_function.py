@@ -3,9 +3,8 @@ import json
 
 
 #pass in strings or the format of the JSON WILL NOT HAVE STRINGS IN IT !!
-def add_to_json(ID, name, category, main_category, currency, deadline, goal, launched, pledged, state, backers, country, usd_pledged, usd_pledged_real ):
+def add_to_json(data ,ID, name, category, main_category, currency, deadline, goal, launched, pledged, state, backers, country, usd_pledged, usd_pledged_real):
 
-    filename = r'static\ks-projects-201801.json'
     entry = {
         "ID": ID,
 		"name": name,
@@ -21,15 +20,8 @@ def add_to_json(ID, name, category, main_category, currency, deadline, goal, lau
 		"country": country,
 		"usd pledged": usd_pledged,
 		"usd_pledged_real": usd_pledged_real}
-    # 1. Read file contents
-
-    with open(filename, "r",encoding='utf-8-sig') as file:
-       	data = json.load(file)
-    # 2. Update json object
     data.append(entry)
-    	# 3. Write json file
-    with open(filename, "w",encoding='utf-8-sig') as file:
-        json.dump(data, file, indent = 4)
+
 
 
 

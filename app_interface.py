@@ -17,6 +17,17 @@ from add_function import add_to_json
 
 #databaseFile =  r'static\ks-projects-201801.json'
 
+data = list()#global variable
+
+#def loadJsonFile():
+    #file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    #with open(file, encoding='utf-8-sig') as json_file:
+        #data = json.load(json_file) # json --> dictionary
+
+
+
+
+
 def search_helper(key, method="GET"):
     if method == 'POST': # will only run below code if client is posting
         # below code: exampleForm is just an imported class.
@@ -32,6 +43,14 @@ def search_helper(key, method="GET"):
     return render_template(f'search-{key.lower()}.html')
 
 app = Flask(__name__) # neccessary for flask
+
+@app.before_first_request
+def loadJsonFile():
+    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    with open(file ,encoding='utf-8-sig') as json_file:
+        global data 
+        data = json.load(json_file) # json --> dictionary
+
 
 @app.route("/") # creates "/" directory for homepage
 def index():
@@ -57,17 +76,46 @@ def search_state():
 def search_month():
     return search_helper('launched', request.method)
 
+@app.route("/update_database")
+def update_database():
+    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    with open(file,"r+" ,encoding='utf-8-sig') as json_file:
+        json_file.seek(0)
+        json.dump(data, json_file, indent=4)
+        json_file.truncate()
+    return render_template('sentanceMessage.html', message = "Successfully updated database file")
+
+@app.route("/import_file", methods=['POST','GET'])
+def import_file():
+    print(-1)
+    if request.method == 'POST':
+        if 'passed_file' not in request.files:
+            print('No file part')
+            return redirect(request.url)
+        file = request.files["passed_file"]
+        
+        if file:#and allowed_file(request.url)
+            file_path = os.path.join(app.static_folder, file.filename)
+            file.save(file_path) 
+            with open(file_path, encoding='utf-8-sig') as json_file:
+                global data
+                data = json.load(json_file) # json --> dictionary
+            return redirect(request.url)
+    return render_template("import_file.html")
+        
+
 @app.route("/search/key=<key>&value=<value>")
 def results(key, value):
-    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    #file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
     projects = [] # the project(s) being looked for
-    with open(file, encoding='utf-8-sig') as json_file:
-        data = json.load(json_file) # json --> dictionary
-        for proj in data:
-            if key == 'ID' and value == proj.get(key):
-                projects.append(proj)
-            elif (key == 'name' or key == 'state' or key == 'category' or key == 'launched') and value.lower() in proj.get(key).lower():
-                projects.append(proj)
+    #with open(file, encoding='utf-8-sig') as json_file:
+        #data = json.load(json_file) # json --> dictionary
+    print(len(data))
+    for proj in data:
+        if key == 'ID' and value == proj.get(key):
+            projects.append(proj)
+        elif (key == 'name' or key == 'state' or key == 'category' or key == 'launched') and value.lower() in proj.get(key).lower():
+            projects.append(proj)
     return render_template('results.html', projects=projects)
 
 
@@ -92,12 +140,12 @@ def delete_kickstarter():
 
 @app.route("/delete/<id_to_delete>")
 def do_delete(id_to_delete):
-    databaseFile = os.path.join(app.static_folder, 'ks-projects-201801.json')
+    #databaseFile = os.path.join(app.static_folder, 'ks-projects-201801.json')
     #with open(databaseFile, "r+") as file:
-    with open(databaseFile, "r+",encoding='utf-8-sig') as file:
+    #with open(databaseFile, "r+",encoding='utf-8-sig') as file:
         located = False
         pos = 0
-        data = json.load(file) # json --> dictionary
+        #data = json.load(file) # json --> dictionary
         #data = json.load(file)
         for i in data:
             if i['ID'] == id_to_delete:
@@ -107,9 +155,6 @@ def do_delete(id_to_delete):
                 pos += 1
         if located:
             data.pop(pos)
-            file.seek(0)
-            json.dump(data, file, indent = 4)
-            file.truncate()
             successMessage = "Project %s was deleted successfully."%id_to_delete
             return render_template('sentanceMessage.html',message = successMessage)
         else:
@@ -125,7 +170,7 @@ def add_kickstarter():
         if not len(ksToAdd.error_msgs) == 0:
             return render_template('sentanceMessage.html',message = "Error on one or more field")
         
-        add_to_json(ksToAdd.id,ksToAdd.name,ksToAdd.category,ksToAdd.main_category,ksToAdd.currency,ksToAdd.deadline,ksToAdd.goal,ksToAdd.date_launched,
+        add_to_json(data,ksToAdd.id,ksToAdd.name,ksToAdd.category,ksToAdd.main_category,ksToAdd.currency,ksToAdd.deadline,ksToAdd.goal,ksToAdd.date_launched,
             ksToAdd.number_pledged,ksToAdd.state,ksToAdd.number_backers,ksToAdd.country,ksToAdd.amount_usd_pledged,ksToAdd.amount_usd_pledged_real)
         return render_template('sentanceMessage.html',message = "Successfully added kickstarter "+ksToAdd.name)
     return render_template('addKickstarter.html')
@@ -189,44 +234,41 @@ def edit_project():
     &new_backers=<new_backers>&new_country=<new_country>''', methods=['POST','GET'])
 def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency, new_deadline, new_goal, 
     new_launched, new_pledged, new_state, new_backers, new_country):
-    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    #file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
     projectFound = False # the project being looked for
-    with open(file, 'r+', encoding='utf-8-sig') as json_file:
-        data = json.load(json_file) # json --> dictionary
-        for proj in data:
-            if id == proj.get('ID'):
-                projectFound = True
-                # these if statements prevent flask errors when any new value is left blank
-                if new_id != '\n':
-                    proj['ID'] = new_id 
-                if new_name != '\n':
-                    proj['name'] = new_name
-                if new_category != '\n':
-                    proj['category'] = new_category
-                if new_main_category != '\n':
-                    proj['main_category'] = new_main_category
-                if new_currency != '\n':
-                    proj['currency'] = new_currency
-                if new_deadline != '\n':
-                    proj['deadline'] = new_deadline
-                if new_goal != '\n':
-                    proj['goal'] = new_goal
-                if new_launched != '\n':
-                    proj['launched'] = new_launched
-                if new_pledged != '\n':
-                    proj['pledged'] = new_pledged
-                if new_state != '\n':
-                    proj['state'] = new_state
-                if new_backers != '\n':
-                    proj['backers'] = new_backers
-                if new_country != '\n':
-                    proj['country'] = new_country
-                break
-        if not projectFound:
-            return render_template('sentanceMessage.html',message = "Project not found")
-        json_file.seek(0)
-        json.dump(data, json_file, indent=4)
-        json_file.truncate()
+    #with open(file, 'r+', encoding='utf-8-sig') as json_file:
+        #data = json.load(json_file) # json --> dictionary
+    for proj in data:
+        if id == proj.get('ID'):
+            projectFound = True
+            # these if statements prevent flask errors when any new value is left blank
+            if new_id != '\n':
+                proj['ID'] = new_id 
+            if new_name != '\n':
+                proj['name'] = new_name
+            if new_category != '\n':
+                proj['category'] = new_category
+            if new_main_category != '\n':
+                proj['main_category'] = new_main_category
+            if new_currency != '\n':
+                proj['currency'] = new_currency
+            if new_deadline != '\n':
+                proj['deadline'] = new_deadline
+            if new_goal != '\n':
+                proj['goal'] = new_goal
+            if new_launched != '\n':
+                proj['launched'] = new_launched
+            if new_pledged != '\n':
+                proj['pledged'] = new_pledged
+            if new_state != '\n':
+                proj['state'] = new_state
+            if new_backers != '\n':
+                proj['backers'] = new_backers
+            if new_country != '\n':
+                proj['country'] = new_country
+            break
+    if not projectFound:
+        return render_template('sentanceMessage.html',message = "Project not found")
     '''
     with open(file, 'w', encoding='utf-8-sig') as json_file:
         json.dump(data, json_file, indent=4)
