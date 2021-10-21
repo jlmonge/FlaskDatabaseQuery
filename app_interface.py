@@ -93,10 +93,12 @@ def delete_kickstarter():
 @app.route("/delete/<id_to_delete>")
 def do_delete(id_to_delete):
     databaseFile = os.path.join(app.static_folder, 'ks-projects-201801.json')
-    with open(databaseFile, "r+") as file:
+    #with open(databaseFile, "r+") as file:
+    with open(databaseFile, "r+",encoding='utf-8-sig') as file:
         located = False
         pos = 0
-        data = json.load(file)
+        data = json.load(file) # json --> dictionary
+        #data = json.load(file)
         for i in data:
             if i['ID'] == id_to_delete:
                 located = True
