@@ -3,7 +3,7 @@ import json
 import io
 from flask import Flask, render_template, request, redirect, url_for #imports from flask
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
-from category_searches import catagory_search, state_search, launched_month_search, highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
+from category_searches import highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
 from add_function import add_to_json
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
@@ -13,6 +13,7 @@ from add_function import add_to_json
 # export FLASK_APP=app_interface.py
 # export FLASK_DEBUG=1
 # flask run
+
 
 def search_helper(key, method="GET"):
     if method == 'POST': # will only run below code if client is posting
@@ -66,6 +67,57 @@ def results(key, value):
             elif (key == 'name' or key == 'state' or key == 'category' or key == 'launched') and value.lower() in proj.get(key).lower():
                 projects.append(proj)
     return render_template('results.html', projects=projects)
+
+
+@app.route("/search",methods=['POST','GET'])
+def search():
+    if request.method == 'POST': # will only run below code if client is posting
+        choiceSearch = request.form.get('choice')
+        if not choiceSearch or choiceSearch.isspace():
+            return redirect(request.url)
+        #return redirect(url_for('get_id', id=id))
+    return render_template('searches.html')
+
+
+@app.route("/delete",methods=['POST','GET'])
+def delete_kickstarter():
+    if request.method == 'POST': # will only run below code if client is posting
+        deleteChoice = request.form.get('id_to_delete')
+        if not deleteChoice or deleteChoice.isspace():
+            return redirect(request.url)
+        return redirect(url_for('do_delete', id_to_delete=deleteChoice))
+    return render_template('deleteKickstarter.html')
+
+@app.route("/delete/<id_to_delete>")
+def do_delete(id_to_delete):
+    #YOUR CODE HERE
+    deleteSuccessful = True
+    if deleteSuccessful:
+        return render_template('sentanceMessage.html',message = "Successfully deleted Kickstarter")
+    else:
+        return render_template('sentanceMessage.html',message = "Could not find ID")
+
+@app.route("/add",methods=['POST','GET'])#NOT WORKING
+def add_kickstarter():
+    if request.method == 'POST': # will only run below code if client is posting
+        ksToAdd = kickStarterForm(request.form.get('id'),request.form.get('name'),request.form.get('category'),request.form.get('main_category'),request.form.get('currency'),
+        request.form.get('deadline'),request.form.get('goal'),request.form.get('date_launched'),request.form.get('time_launched'),request.form.get('number_pledged'),request.form.get('state'),
+        request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'), request.form.get('amount_usd_pledged_real'))
+        if not len(ksToAdd.error_msgs) == 0:
+            return render_template('sentanceMessage.html',message = "Error on one or more field")
+        return redirect(url_for('do_add', ksToAdd=ksToAdd))
+    return render_template('addKickstarter.html')
+
+@app.route("/add/<ksToAdd>")#NOR WORKING
+def do_add(ksToAdd):
+    #YOUR CODE HERE
+    addSuccessful = True
+    if addSuccessful:
+        return render_template('sentanceMessage.html',message = "Successfully added Kickstarter")
+    else:
+        return render_template('sentanceMessage.html',message = "error")
+
+
 
 @app.route("/edit", methods=['POST','GET'])
 def edit_project():
@@ -131,40 +183,39 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
                 projectFound = True
                 # these if statements prevent flask errors when any new value is left blank
                 if new_id != '\n':
-                    data[pos]['ID'] = new_id 
+                    proj['ID'] = new_id 
                 if new_name != '\n':
-                    data[pos]['name'] = new_name
+                    proj['name'] = new_name
                 if new_category != '\n':
-                    data[pos]['category'] = new_category
+                    proj['category'] = new_category
                 if new_main_category != '\n':
-                    data[pos]['main_category'] = new_main_category
+                    proj['main_category'] = new_main_category
                 if new_currency != '\n':
-                    data[pos]['currency'] = new_currency
+                    proj['currency'] = new_currency
                 if new_deadline != '\n':
-                    data[pos]['deadline'] = new_deadline
+                    proj['deadline'] = new_deadline
                 if new_goal != '\n':
-                    data[pos]['goal'] = new_goal
+                    proj['goal'] = new_goal
                 if new_launched != '\n':
-                    data[pos]['launched'] = new_launched
+                    proj['launched'] = new_launched
                 if new_pledged != '\n':
-                    data[pos]['pledged'] = new_pledged
+                    proj['pledged'] = new_pledged
                 if new_state != '\n':
-                    data[pos]['state'] = new_state
+                    proj['state'] = new_state
                 if new_backers != '\n':
-                    data[pos]['backers'] = new_backers
+                    proj['backers'] = new_backers
                 if new_country != '\n':
-                    data[pos]['country'] = new_country
+                    proj['country'] = new_country
                 break
-            else:
-                pos += 1
-        if projectFound:
-            print("got here")
-        else:
-            return render_template('edit-failure.html')
-    
+        if not projectFound:
+            return render_template('sentanceMessage.html',message = "Project not found")
+        json_file.seek(0)
+        json.dump(data, json_file, indent=4)
+        json_file.truncate()
+    '''
     with open(file, 'w', encoding='utf-8-sig') as json_file:
         json.dump(data, json_file, indent=4)
-    '''
+    
     print(proj)
     print(new_id, new_name, new_category, new_main_category, new_currency, new_deadline, new_goal, new_launched, \
         new_pledged, new_state, new_backers, new_country)
