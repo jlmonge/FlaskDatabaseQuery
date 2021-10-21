@@ -87,7 +87,6 @@ def update_database():
 
 @app.route("/import_file", methods=['POST','GET'])
 def import_file():
-    print(-1)
     if request.method == 'POST':
         if 'passed_file' not in request.files:
             print('No file part')
