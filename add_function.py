@@ -23,12 +23,12 @@ def add_to_json(ID, name, category, main_category, currency, deadline, goal, lau
 		"usd_pledged_real": usd_pledged_real}
     # 1. Read file contents
 
-    with open(filename, "r") as file:
+    with open(filename, "r",encoding='utf-8-sig') as file:
        	data = json.load(file)
     # 2. Update json object
     data.append(entry)
     	# 3. Write json file
-    with open(filename, "w") as file:
+    with open(filename, "w",encoding='utf-8-sig') as file:
         json.dump(data, file, indent = 4)
 
 
