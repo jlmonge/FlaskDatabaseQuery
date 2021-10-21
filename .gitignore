@@ -9,4 +9,4 @@ env/*
 *.pyc
 .DS_Store
 test.json
-#static/ks-projects-201801.json
+static/ks-projects-201801.json
