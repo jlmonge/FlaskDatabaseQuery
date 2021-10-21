@@ -14,103 +14,6 @@ from add_function import add_to_json
 # export FLASK_DEBUG=1
 # flask run
 
-app = Flask(__name__) # neccessary for flask
-databaseFile = os.path.join(app.static_folder, 'WORKING-2018ksprojects.json') # Location of our file. Call it in functions rather than writing this whole thing out again
-
-@app.route("/") # creates "/" directory for homepage
-def indexPage():
-    return render_template('index.html')
-
-@app.route("/search",methods=['POST','GET'])
-def search():
-    if request.method == 'POST': # will only run below code if client is posting
-        choiceSearch = request.form.get('choice')
-        if not choiceSearch or choiceSearch.isspace():
-            return redirect(request.url)
-        #return redirect(url_for('get_id', id=id))
-    return render_template('searches.html')
-
-
-@app.route("/delete",methods=['POST','GET'])
-def delete_kickstarter():
-    if request.method == 'POST': # will only run below code if client is posting
-        deleteChoice = request.form.get('id_to_delete')
-        if not deleteChoice or deleteChoice.isspace():
-            return redirect(request.url)
-        return redirect(url_for('do_delete', id_to_delete=deleteChoice))
-    return render_template('deleteKickstarter.html')
-
-@app.route("/delete/<id_to_delete>")
-def do_delete(id_to_delete):
-    with open(databaseFile, "r+") as file:
-        located = False
-        pos = 0
-        data = json.load(file)
-        for i in data:
-            if i['ID'] == id_to_delete:
-                located = True
-                break
-            else:
-                pos += 1
-        if located:
-            data.pop(pos)
-            file.seek(0)
-            json.dump(data, file, indent = 4)
-            file.truncate()
-            successMessage = "Project %s was deleted successfully."%id_to_delete
-            return render_template('sentanceMessage.html',message = successMessage)
-        else:
-            errorMessage = "Error: Project %s could not be found!"%id_to_delete
-            return render_template('sentanceMessage.html',message = errorMessage)
-
-
-@app.route("/update",methods=['POST','GET'])#NOT WORKING
-def update_kickstarter():
-    if request.method == 'POST': # will only run below code if client is posting
-        ksToUpdate = kickStarterForm(request.form.get('id'),request.form.get('name'),request.form.get('category'),request.form.get('main_category'),request.form.get('currency'),
-        request.form.get('deadline'),request.form.get('goal'),request.form.get('date_launched'), request.form.get('time_launched'),request.form.get('number_pledged'),request.form.get('state'),
-        request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'), request.form.get('amount_usd_pledged_real'))
-        if not len(ksToUpdate.error_msgs) == 0:
-            return render_template('sentanceMessage.html',message = "Error on one or more field")
-        return redirect(url_for('do_update', ksToUpdate=ksToUpdate))
-    return render_template('updateKickstarter.html')
-
-@app.route("/update/<ksToUpdate>")#NOR WORKING
-def do_update(ksToUpdate):
-    #YOUR CODE HERE
-    updateSuccessful = True
-    if updateSuccessful:
-        return render_template('sentanceMessage.html',message = "Successfully updated Kickstarter")
-    else:
-        return render_template('sentanceMessage.html',message = "error")
-
-@app.route("/add",methods=['POST','GET'])#NOT WORKING
-def add_kickstarter():
-    if request.method == 'POST': # will only run below code if client is posting
-        ksToAdd = kickStarterForm(request.form.get('id'),request.form.get('name'),request.form.get('category'),request.form.get('main_category'),request.form.get('currency'),
-        request.form.get('deadline'),request.form.get('goal'),request.form.get('date_launched'), request.form.get('time_launched'),request.form.get('number_pledged'),request.form.get('state'),
-        request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'), request.form.get('amount_usd_pledged_real'))
-        if not len(ksToAdd.error_msgs) == 0:
-            return render_template('sentanceMessage.html',message = "Error on one or more field")
-        add_to_json(ksToAdd.id, ksToAdd.name, ksToAdd.category, ksToAdd.main_category, ksToAdd.currency, ksToAdd.deadline, ksToAdd.goal, ksToAdd.date_launched, ksToAdd.number_pledged, 
-        ksToAdd.state, ksToAdd.number_backers, ksToAdd.country, ksToAdd.amount_usd_pledged, ksToAdd.amount_usd_pledged_real)
-        #if addSuccessful:
-        return render_template('sentanceMessage.html',message = "Successfully added Kickstarter " + ksToAdd.name)
-        #else:
-         #   return render_template('sentanceMessage.html',message = "error")
-        #return redirect(url_for('do_add', ksToAdd=ksToAdd))
-    return render_template('addKickstarter.html')
-
-#@app.route("/add/<ksToAdd>")
-#def do_add(ksToAdd):
-    #print(type(ksToAdd))
-    #addSuccessful = add_to_json(ksToAdd.id, ksToAdd.name, ksToAdd.category, ksToAdd.main_category, ksToAdd.currency, ksToAdd.deadline, ksToAdd.goal, ksToAdd.date_launched, ksToAdd.number_pledged, 
-    #ksToAdd.state, ksToAdd.number_backers, ksToAdd.country, ksToAdd.amount_usd_pledged, ksToAdd.amount_usd_pledged_real)
-    #if addSuccessful:
-    #    return render_template('sentanceMessage.html',message = "Successfully added Kickstarter " + ksToAdd.name)
-    #else:
-    #    return render_template('sentanceMessage.html',message = "error")
-
 def search_helper(key, method="GET"):
     if method == 'POST': # will only run below code if client is posting
         # below code: exampleForm is just an imported class.
@@ -142,7 +45,6 @@ def search_name():
 @app.route("/category", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
 def search_category():
     return search_helper('category', request.method)
-
 
 @app.route("/state", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
 def search_state():
@@ -222,8 +124,7 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
     new_launched, new_pledged, new_state, new_backers, new_country):
     file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
     projectFound = False # the project being looked for
-    pos = 0
-    with open(file, 'r', encoding='utf-8-sig') as json_file:
+    with open(file, 'r+', encoding='utf-8-sig') as json_file:
         data = json.load(json_file) # json --> dictionary
         for proj in data:
             if id == proj.get('ID'):
