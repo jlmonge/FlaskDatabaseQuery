@@ -1,32 +1,23 @@
 import os
 import json
 import io
-from flask import Flask, render_template, request, redirect, url_for #imports from flask
+from flask import Flask, render_template, request, redirect, url_for, flash #imports from flask
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
 from category_searches import highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
 from add_function import add_to_json
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
+# instructions to upload 
 # py -m venv env
 # env/Scripts/Activate
 # export FLASK_APP=app_interface.py
 # export FLASK_DEBUG=1
 # flask run
 
-
-#databaseFile =  r'static\ks-projects-201801.json'
-
-data = list()#global variable
-
-#def loadJsonFile():
-    #file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
-    #with open(file, encoding='utf-8-sig') as json_file:
-        #data = json.load(json_file) # json --> dictionary
-
-
-
-
+# GLOBAL VARIABLES
+file_name =  'ks-projects-201801.json'
+data = list()
 
 def search_helper(key, method="GET"):
     if method == 'POST': # will only run below code if client is posting
@@ -46,11 +37,10 @@ app = Flask(__name__) # neccessary for flask
 
 @app.before_first_request
 def loadJsonFile():
-    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    file = os.path.join(app.static_folder, file_name) # location of json file
     with open(file ,encoding='utf-8-sig') as json_file:
         global data 
         data = json.load(json_file) # json --> dictionary
-
 
 @app.route("/") # creates "/" directory for homepage
 def index():
@@ -78,7 +68,7 @@ def search_month():
 
 @app.route("/update_database")
 def update_database():
-    file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    file = os.path.join(app.static_folder, file_name) # location of json file
     with open(file,"r+" ,encoding='utf-8-sig') as json_file:
         json_file.seek(0)
         json.dump(data, json_file, indent=4)
@@ -87,37 +77,34 @@ def update_database():
 
 @app.route("/import_file", methods=['POST','GET'])
 def import_file():
-    print(-1)
     if request.method == 'POST':
         if 'passed_file' not in request.files:
             print('No file part')
             return redirect(request.url)
         file = request.files["passed_file"]
-        
         if file:#and allowed_file(request.url)
             file_path = os.path.join(app.static_folder, file.filename)
             file.save(file_path) 
             with open(file_path, encoding='utf-8-sig') as json_file:
                 global data
                 data = json.load(json_file) # json --> dictionary
+            global file_name
+            file_name = file.filename
             return redirect(request.url)
     return render_template("import_file.html")
-        
 
 @app.route("/search/key=<key>&value=<value>")
 def results(key, value):
-    #file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    #file = os.path.join(app.static_folder, file_name) # location of json file
     projects = [] # the project(s) being looked for
     #with open(file, encoding='utf-8-sig') as json_file:
         #data = json.load(json_file) # json --> dictionary
-    print(len(data))
     for proj in data:
         if key == 'ID' and value == proj.get(key):
             projects.append(proj)
         elif (key == 'name' or key == 'state' or key == 'category' or key == 'launched') and value.lower() in proj.get(key).lower():
             projects.append(proj)
     return render_template('results.html', projects=projects)
-
 
 @app.route("/search",methods=['POST','GET'])
 def search():
@@ -140,7 +127,7 @@ def delete_kickstarter():
 
 @app.route("/delete/<id_to_delete>")
 def do_delete(id_to_delete):
-    #databaseFile = os.path.join(app.static_folder, 'ks-projects-201801.json')
+    #databaseFile = os.path.join(app.static_folder, file_name)
     #with open(databaseFile, "r+") as file:
     #with open(databaseFile, "r+",encoding='utf-8-sig') as file:
         located = False
@@ -175,10 +162,6 @@ def add_kickstarter():
         return render_template('sentanceMessage.html',message = "Successfully added kickstarter "+ksToAdd.name)
     return render_template('addKickstarter.html')
 
-
-
-
-
 @app.route("/edit", methods=['POST','GET'])
 def edit_project():
     if request.method == 'POST':
@@ -208,6 +191,8 @@ def edit_project():
         if not new_goal:
             new_goal = '\n'
         new_launched = request.form.get('new_launched')
+        # slicing is done to match the format of the rest of the launched values
+        new_launched = new_launched[:10] + " " + new_launched[11:]
         if not new_launched:
             new_launched = '\n'
         new_pledged = request.form.get('new_pledged')
@@ -234,7 +219,7 @@ def edit_project():
     &new_backers=<new_backers>&new_country=<new_country>''', methods=['POST','GET'])
 def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency, new_deadline, new_goal, 
     new_launched, new_pledged, new_state, new_backers, new_country):
-    #file = os.path.join(app.static_folder, 'ks-projects-201801.json') # location of json file
+    #file = os.path.join(app.static_folder, file_name) # location of json file
     projectFound = False # the project being looked for
     #with open(file, 'r+', encoding='utf-8-sig') as json_file:
         #data = json.load(json_file) # json --> dictionary
