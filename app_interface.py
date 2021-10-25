@@ -5,10 +5,12 @@ from flask import Flask, render_template, request, redirect, url_for, flash #imp
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
 from category_searches import highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
 from add_function import add_to_json
+import plotly # pip install plotly==5.3.1
+import plotly.graph_objects as go
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
-# instructions to upload 
+# instructions to run app 
 # py -m venv env
 # env/Scripts/Activate
 # export FLASK_APP=app_interface.py
@@ -40,7 +42,7 @@ def loadJsonFile():
     file = os.path.join(app.static_folder, file_name) # location of json file
     with open(file ,encoding='utf-8-sig') as json_file:
         global data 
-        data = json.load(json_file) # json --> dictionary
+        data = json.load(json_file) # json --> list of dictionaries
 
 @app.route("/") # creates "/" directory for homepage
 def index():
@@ -73,7 +75,7 @@ def update_database():
         json_file.seek(0)
         json.dump(data, json_file, indent=4)
         json_file.truncate()
-    return render_template('sentanceMessage.html', message = "Successfully updated database file")
+    return render_template('sentenceMessage.html', message = "Successfully updated database file")
 
 @app.route("/import_file", methods=['POST','GET'])
 def import_file():
@@ -82,12 +84,12 @@ def import_file():
             print('No file part')
             return redirect(request.url)
         file = request.files["passed_file"]
-        if file:#and allowed_file(request.url)
+        if file: #and allowed_file(request.url)
             file_path = os.path.join(app.static_folder, file.filename)
             file.save(file_path) 
             with open(file_path, encoding='utf-8-sig') as json_file:
                 global data
-                data = json.load(json_file) # json --> dictionary
+                data = json.load(json_file) # json --> list of dictionaries
             global file_name
             file_name = file.filename
             return redirect(request.url)
@@ -98,7 +100,7 @@ def results(key, value):
     #file = os.path.join(app.static_folder, file_name) # location of json file
     projects = [] # the project(s) being looked for
     #with open(file, encoding='utf-8-sig') as json_file:
-        #data = json.load(json_file) # json --> dictionary
+        #data = json.load(json_file) # json --> list of dictionaries
     for proj in data:
         if key == 'ID' and value == proj.get(key):
             projects.append(proj)
@@ -132,7 +134,7 @@ def do_delete(id_to_delete):
     #with open(databaseFile, "r+",encoding='utf-8-sig') as file:
         located = False
         pos = 0
-        #data = json.load(file) # json --> dictionary
+        #data = json.load(file) # json --> list of dictionaries
         #data = json.load(file)
         for i in data:
             if i['ID'] == id_to_delete:
@@ -143,10 +145,10 @@ def do_delete(id_to_delete):
         if located:
             data.pop(pos)
             successMessage = "Project %s was deleted successfully."%id_to_delete
-            return render_template('sentanceMessage.html',message = successMessage)
+            return render_template('sentenceMessage.html',message = successMessage)
         else:
             errorMessage = "Error: Project %s could not be found!"%id_to_delete
-            return render_template('sentanceMessage.html',message = errorMessage)
+            return render_template('sentenceMessage.html',message = errorMessage)
 
 @app.route("/add",methods=['POST','GET'])#NOT WORKING
 def add_kickstarter():
@@ -155,11 +157,11 @@ def add_kickstarter():
         request.form.get('deadline'),request.form.get('goal'),request.form.get('date_launched'),request.form.get('time_launched'),request.form.get('number_pledged'),request.form.get('state'),
         request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'), request.form.get('amount_usd_pledged_real'))      
         if not len(ksToAdd.error_msgs) == 0:
-            return render_template('sentanceMessage.html',message = "Error on one or more field")
+            return render_template('sentenceMessage.html',message = "Error on one or more field")
         
         add_to_json(data,ksToAdd.id,ksToAdd.name,ksToAdd.category,ksToAdd.main_category,ksToAdd.currency,ksToAdd.deadline,ksToAdd.goal,ksToAdd.date_launched,
             ksToAdd.number_pledged,ksToAdd.state,ksToAdd.number_backers,ksToAdd.country,ksToAdd.amount_usd_pledged,ksToAdd.amount_usd_pledged_real)
-        return render_template('sentanceMessage.html',message = "Successfully added kickstarter "+ksToAdd.name)
+        return render_template('sentenceMessage.html',message = "Successfully added kickstarter "+ksToAdd.name)
     return render_template('addKickstarter.html')
 
 @app.route("/edit", methods=['POST','GET'])
@@ -222,7 +224,7 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
     #file = os.path.join(app.static_folder, file_name) # location of json file
     projectFound = False # the project being looked for
     #with open(file, 'r+', encoding='utf-8-sig') as json_file:
-        #data = json.load(json_file) # json --> dictionary
+        #data = json.load(json_file) # json --> list of dictionaries
     for proj in data:
         if id == proj.get('ID'):
             projectFound = True
@@ -253,23 +255,32 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
                 proj['country'] = new_country
             break
     if not projectFound:
-        return render_template('sentanceMessage.html',message = "Project not found")
-    '''
-    with open(file, 'w', encoding='utf-8-sig') as json_file:
-        json.dump(data, json_file, indent=4)
-    
-    print(proj)
-    print(new_id, new_name, new_category, new_main_category, new_currency, new_deadline, new_goal, new_launched, \
-        new_pledged, new_state, new_backers, new_country)
-    print(proj['ID'], proj['name'], proj['category'], proj['main_category'], proj['currency'], proj['deadline'], \
-        proj['goal'], proj['launched'], proj['pledged'], proj['state'], proj['backers'], proj['country'])
-    '''
+        return render_template('sentenceMessage.html',message = "Project not found")
+
     return render_template('edit-success.html', project=proj)
 
+@app.route("/analytics")
+def category_fail():
+    category_dict = { # key=main category, value=success[0],fail[1]
+        'Games':[0,0], 'Design':[0,0], 'Technology':[0,0], 'Film & Video':[0,0], 'Music':[0,0], 
+        'Publishing':[0,0], 'Fashion':[0,0], 'Food':[0,0], 'Art':[0,0], 
+        'Comics':[0,0], 'Photography':[0,0], 'Theater':[0,0], 'Crafts':[0,0], 
+        'Journalism':[0,0], 'Dance':[0,0]}
+    for proj in data:
+        if proj['state'] == 'successful':
+            category_dict[proj['main_category']][0] += 1
+        elif proj['state'] == 'failed' or proj['state'] == 'canceled':
+            category_dict[proj['main_category']][1] += 1
+    category_names = list(category_dict.keys())
+    category_successful = [x[0]for x in list(category_dict.values())]
+    category_failed = [x[1]for x in list(category_dict.values())]
+    fig = go.Figure(data=[
+        go.Bar(name='successful', x=category_names, y=category_successful),
+        go.Bar(name='failed', x=category_names, y=category_failed)
+    ])
 
+    # change the bar mode
+    fig.update_layout(barmode='stack')
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
-
-'''
-@app.route("/id/<id>/edit") # needed to edit later on
-def set_id()
-'''
+    return render_template('analytics.html', graphJSON=graphJSON)
