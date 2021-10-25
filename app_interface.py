@@ -6,6 +6,7 @@ from userInput import exampleForm, kickStarterForm # import forms here. We impor
 from category_searches import highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
 from add_function import add_to_json
 import plotly # pip install plotly==5.3.1
+from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
@@ -23,10 +24,7 @@ data = list()
 
 def search_helper(key, method="GET"):
     if method == 'POST': # will only run below code if client is posting
-        # below code: exampleForm is just an imported class.
         # request.form looks at the html in the render_template function.
-        # It finds the input given the name 'nm' and returns the user input.
-        # form = exampleForm(request.form["id"])
         value = request.form.get(key)
         if not value or value.isspace():
             return redirect(request.url)
@@ -261,7 +259,7 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
 
 @app.route("/analytics")
 def category_fail():
-    category_dict = { # key=main category, value=success[0],fail[1]
+    category_dict = { # key=main category, value=#successful[0],#failed[1]
         'Games':[0,0], 'Design':[0,0], 'Technology':[0,0], 'Film & Video':[0,0], 'Music':[0,0], 
         'Publishing':[0,0], 'Fashion':[0,0], 'Food':[0,0], 'Art':[0,0], 
         'Comics':[0,0], 'Photography':[0,0], 'Theater':[0,0], 'Crafts':[0,0], 
@@ -271,16 +269,21 @@ def category_fail():
             category_dict[proj['main_category']][0] += 1
         elif proj['state'] == 'failed' or proj['state'] == 'canceled':
             category_dict[proj['main_category']][1] += 1
+   
     category_names = list(category_dict.keys())
-    category_successful = [x[0]for x in list(category_dict.values())]
-    category_failed = [x[1]for x in list(category_dict.values())]
+    # FOR DEBUGGING: category_successful = [x[0] for x in list(category_dict.values())]
+    # FOR DEBUGGING: category_failed = [x[1] for x in list(category_dict.values())]
+    category_failed_ratio = [x[1] / (x[0] + x[1]) for x in list(category_dict.values())] # list comprehension
+
     fig = go.Figure(data=[
-        go.Bar(name='successful', x=category_names, y=category_successful),
-        go.Bar(name='failed', x=category_names, y=category_failed)
+        go.Bar(x=category_names, y=category_failed_ratio) # create the bar chart
     ])
 
-    # change the bar mode
-    fig.update_layout(barmode='stack')
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    fig.update_layout( # change the bar mode
+        barmode='stack', title="Percent of failed projects in each main category", xaxis_title="Main categories", 
+        yaxis_title="Percent of failed projects"
+    ) 
+    fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
 
     return render_template('analytics.html', graphJSON=graphJSON)
