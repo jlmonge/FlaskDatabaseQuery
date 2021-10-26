@@ -22,16 +22,13 @@ import plotly.graph_objects as go
 file_name =  'ks-projects-201801.json'
 data = list()
 
-def search_helper(key, method="GET"):
+def search_helper(key, method="GET", input_type=''):
     if method == 'POST': # will only run below code if client is posting
-        # request.form looks at the html in the render_template function.
-        value = request.form.get(key)
-        if not value or value.isspace():
+        value = request.form.get(key) # request.form looks at the html in current route
+        if not value or value.isspace(): # refresh page if search is blank 
             return redirect(request.url)
-        #with open('test.txt', 'w') as f:   # needed once we edit values in the json file
-            #f.write(id)
-        return redirect(url_for('results', key=key, value=value))
-    return render_template(f'search-{key.lower()}.html')
+        return redirect(url_for('results', key=key, value=value)) # go to results function
+    return render_template('search-input.html', type=input_type, name=key) # load page
 
 app = Flask(__name__) # neccessary for flask
 
@@ -48,32 +45,35 @@ def index():
 
 @app.route("/id", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
 def search_ID():
-    return search_helper('ID', request.method)
+    return search_helper('ID', request.method, "number")
 
 @app.route("/name", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
 def search_name():
-    return search_helper('name', request.method)
+    return search_helper('name', request.method, "text")
 
 @app.route("/category", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
 def search_category():
-    return search_helper('category', request.method)
+    return search_helper('category', request.method, "text")
 
 @app.route("/state", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
 def search_state():
-    return search_helper('state', request.method)
+    return search_helper('state', request.method, "text")
 
 @app.route("/launched", methods=['POST','GET']) # creates "/" directory and accepts 'POST' and 'GET' Requests
 def search_month():
-    return search_helper('launched', request.method)
+    return search_helper('launched', request.method, "month")
 
 @app.route("/update_database")
 def update_database():
     file = os.path.join(app.static_folder, file_name) # location of json file
     with open(file,"r+" ,encoding='utf-8-sig') as json_file:
-        json_file.seek(0)
-        json.dump(data, json_file, indent=4)
-        json_file.truncate()
-    return render_template('sentenceMessage.html', message = "Successfully updated database file")
+        json_file.seek(0) # go to start of file
+        json.dump(data, json_file, indent=4) # write data to json file
+        # necessary since we open the file with r+
+        # if we dump a lesser amount of lines than the file originally had,
+        # we end up with trailing garbage values; truncate() gets rid of that
+        json_file.truncate() 
+    return render_template('results.html', projects=[], message="Successfully updated database file")
 
 @app.route("/import_file", methods=['POST','GET'])
 def import_file():
@@ -104,7 +104,7 @@ def results(key, value):
             projects.append(proj)
         elif (key == 'name' or key == 'state' or key == 'category' or key == 'launched') and value.lower() in proj.get(key).lower():
             projects.append(proj)
-    return render_template('results.html', projects=projects)
+    return render_template('results.html', projects=projects, message="Project not found")
 
 @app.route("/search",methods=['POST','GET'])
 def search():
@@ -113,7 +113,7 @@ def search():
         if not choiceSearch or choiceSearch.isspace():
             return redirect(request.url)
         #return redirect(url_for('get_id', id=id))
-    return render_template('searches.html')
+    return render_template('search-options.html')
 
 
 @app.route("/delete",methods=['POST','GET'])
@@ -143,10 +143,10 @@ def do_delete(id_to_delete):
         if located:
             data.pop(pos)
             successMessage = "Project %s was deleted successfully."%id_to_delete
-            return render_template('sentenceMessage.html',message = successMessage)
+            return render_template('results.html', projects=[], message=successMessage)
         else:
             errorMessage = "Error: Project %s could not be found!"%id_to_delete
-            return render_template('sentenceMessage.html',message = errorMessage)
+            return render_template('results.html', projects=[], message=errorMessage)
 
 @app.route("/add",methods=['POST','GET'])#NOT WORKING
 def add_kickstarter():
@@ -155,11 +155,11 @@ def add_kickstarter():
         request.form.get('deadline'),request.form.get('goal'),request.form.get('date_launched'),request.form.get('time_launched'),request.form.get('number_pledged'),request.form.get('state'),
         request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'), request.form.get('amount_usd_pledged_real'))      
         if not len(ksToAdd.error_msgs) == 0:
-            return render_template('sentenceMessage.html',message = "Error on one or more field")
+            return render_template('results.html', projects=[], message="Error on one or more fields")
         
         add_to_json(data,ksToAdd.id,ksToAdd.name,ksToAdd.category,ksToAdd.main_category,ksToAdd.currency,ksToAdd.deadline,ksToAdd.goal,ksToAdd.date_launched,
             ksToAdd.number_pledged,ksToAdd.state,ksToAdd.number_backers,ksToAdd.country,ksToAdd.amount_usd_pledged,ksToAdd.amount_usd_pledged_real)
-        return render_template('sentenceMessage.html',message = "Successfully added kickstarter "+ksToAdd.name)
+        return render_template('results.html', message="Successfully added kickstarter "+ksToAdd.name)
     return render_template('addKickstarter.html')
 
 @app.route("/edit", methods=['POST','GET'])
@@ -191,10 +191,11 @@ def edit_project():
         if not new_goal:
             new_goal = '\n'
         new_launched = request.form.get('new_launched')
-        # slicing is done to match the format of the rest of the launched values
-        new_launched = new_launched[:10] + " " + new_launched[11:]
         if not new_launched:
             new_launched = '\n'
+        else:
+            # slicing is done to match the format of the rest of the launched values
+            new_launched = new_launched[:10] + " " + new_launched[11:]
         new_pledged = request.form.get('new_pledged')
         if not new_pledged:
             new_pledged = '\n'
@@ -253,9 +254,9 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
                 proj['country'] = new_country
             break
     if not projectFound:
-        return render_template('sentenceMessage.html',message = "Project not found")
-
-    return render_template('edit-success.html', project=proj)
+        return render_template('results.html', projects=[], message="Project not found")
+        
+    return render_template('results.html', projects=[proj])
 
 @app.route("/analytics")
 def category_fail():
@@ -273,15 +274,16 @@ def category_fail():
     category_names = list(category_dict.keys())
     # FOR DEBUGGING: category_successful = [x[0] for x in list(category_dict.values())]
     # FOR DEBUGGING: category_failed = [x[1] for x in list(category_dict.values())]
-    category_failed_ratio = [x[1] / (x[0] + x[1]) for x in list(category_dict.values())] # list comprehension
+    category_failed_ratio = [x[1] / (x[0] + x[1]) if x[0] or x[1] else 0 for x \
+        in list(category_dict.values())] # list comprehension
 
     fig = go.Figure(data=[
         go.Bar(x=category_names, y=category_failed_ratio) # create the bar chart
     ])
 
     fig.update_layout( # change the bar mode
-        barmode='stack', title="Percent of failed projects in each main category", xaxis_title="Main categories", 
-        yaxis_title="Percent of failed projects"
+        barmode='stack', title="Ratio of failed projects in each main category", xaxis_title="Main categories", 
+        yaxis_title="Ratio of failed projects"
     ) 
     fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html

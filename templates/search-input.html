@@ -3,11 +3,11 @@
 <div class="page-content">
    <form action="" method="POST">
       <!-- p tag represents a paragraph.(seperate block of text) -->
-      <p>Search by ID:</p>
+      <p>Search by {{ name }}:</p>
       <!-- input is how we get forms from users -->
       <!-- "type" how we are recieving input.("submit is a button, text is a bar") -->
       <!-- "name" the name of the text request.form looks for -->
-      <p><input type="number" name="ID"></p>
+      <p><input type="{{ type }}" name="{{ name }}"></p>
       <p><input type="submit" value="Submit"></p>
    </form>
 </div>
