@@ -291,10 +291,11 @@ def category_fail():
 
     return render_template('analytics.html', graphJSON=graphJSON)
 
-@app.route("/analytic_lenght")
-def make_lenght_analytic():
+@app.route("/analytic_length")
+def make_length_analytic():
     labels, analyticByMonth, totalAverage = average_length_ks(data)
 
+    #Joseph's work
     fig = go.Figure(data=[
         go.Bar(x=labels, y=analyticByMonth) # create the bar chart
     ])
@@ -302,6 +303,7 @@ def make_lenght_analytic():
     fig.update_layout( # change the bar mode
         barmode='stack', title="Average Expected Length of Kickstarter by Year", xaxis_title="Year", 
         yaxis_title="Average expected length(days)"
+    )
     fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
 
