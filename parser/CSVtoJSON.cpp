@@ -185,10 +185,15 @@ std::string indent(unsigned int amt) {
 //--------------
 void readCurrentLine(bool vis, std::string& ref, std::vector<std::string>& bin) {
     std::string val = "";
+    bool openQuotes = false;
     for (unsigned i = 0; i < ref.size(); ++i) {
-        if (ref.at(i) == '\"') { val.append("\\\""); }
+        if (ref.at(i) == '\"') {
+            val.append("\\\"");
+            if (!openQuotes) { openQuotes = true; }
+            else { openQuotes = false; }
+        }
         else if (ref.at(i) == '\\') { val.append("\\\\"); }
-        else if (ref.at(i) != ',' && static_cast<int>(ref.at(i)) > 31) { val.push_back(ref.at(i)); }
+        else if ((ref.at(i) != ',' || openQuotes) && static_cast<int>(ref.at(i)) > 31) { val.push_back(ref.at(i)); }
         else {
             bin.push_back(val);
             if (vis) { std::cout << "   " << bin.size() << ".   " << bin.back() << "\n"; }
