@@ -9,11 +9,9 @@
         <p>Name: {{ project.get('name') }}</p>
         <p>Category: {{ project.get('category') }}</p>
         <p>Main category: {{ project.get('main_category') }}</p>
-        <p>Launched: {{ project.get('launched') }}</p>
-        <p>State: {{ project.get('state') }}</p>
-        <p>Amount pledged: {{ project.get('usd_pledged_real') }} {{ project.get('currency') }}</p>
+        <p>Amount pledged: {{ project.get('pledged') }} {{ project.get('currency') }}</p>
         <p>Deadline: {{ project.get('deadline') }}</p>
-        <p>Goal: {{ project.get('goal') }}</p>
+        <p>Goal: {{ project.get('goal')|int }} {{ project.get('currency') }}</p>
         <p>Launched: {{ project.get('launched') }}</p>
         <p>State: {{ project.get('state') }}</p>
         <p>Backers: {{ project.get('backers') }}</p>
@@ -21,7 +19,7 @@
     </div>
     {% endfor %}
 {% else %}
-    <p>Project not found</p>
+    <p>{{ message }}</p>
 {% endif %}
 </div>
 {% endblock content %} <!-- indicates "block content" is done -->
