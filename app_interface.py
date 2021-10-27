@@ -5,6 +5,10 @@ from flask import Flask, render_template, request, redirect, url_for #imports fr
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
 from category_searches import highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
 from add_function import add_to_json
+import plotly # pip install plotly==5.3.1
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+from stat_functions import average_length_ks#might move average_length_ks to app_interface
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
@@ -279,6 +283,24 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
         proj['goal'], proj['launched'], proj['pledged'], proj['state'], proj['backers'], proj['country'])
     '''
     return render_template('edit-success.html', project=proj)
+
+
+@app.route("/analytic_lenght")
+def make_lenght_analytic:
+    labels, analyticByMonth, totalAverage = average_length_ks(data)
+
+    fig = go.Figure(data=[
+        go.Bar(x=labels, y=analyticByMonth) # create the bar chart
+    ])
+
+    fig.update_layout( # change the bar mode
+        barmode='stack', title="Average Expected Length of Kickstarter by Year", xaxis_title="Year", 
+        yaxis_title="Average expected length(days)"
+    ) 
+    fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
+
+    return render_template('analytics.html', graphJSON=graphJSON)
 
 
 
