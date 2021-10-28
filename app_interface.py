@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash #imp
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
 from category_searches import highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
 from add_function import add_to_json
+from shinjin_analytics import most_funded_category_per_year
 import plotly # pip install plotly==5.3.1
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -18,6 +19,7 @@ import plotly.graph_objects as go
 # export FLASK_DEBUG=1
 # flask run
 
+#dummy_file.json
 # GLOBAL VARIABLES
 file_name =  'ks-projects-201801.json'
 data = list()
@@ -288,4 +290,40 @@ def category_fail():
     fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
 
+    return render_template('analytics.html', graphJSON=graphJSON)
+
+
+@app.route("/analytics_most_funded_category")
+def analytics_most_funded_category():
+    
+    #contains the most pledged categories for years 2012-15
+    list_of_categories = []
+    list_of_years = ['2009','2010','2011','2012','2013','2014','2015','2016','2017','2018']
+    list_of_values = []
+
+
+    temp = []
+    for str in list_of_years:
+        temp = most_funded_category_per_year(str,data)
+        #print(*temp, sep = "\n") 
+        list_of_values.append(temp[0])
+        list_of_categories.append(temp[1])
+        
+    
+    for i in range(len(list_of_years)):
+        list_of_years[i] = list_of_years[i] + " " + list_of_categories[i]
+    
+    
+    fig = go.Figure(data=[
+        go.Bar(x=list_of_years, y=list_of_values) # create the bar chart
+    ])
+    
+    fig.update_layout( # change the bar mode
+        title="Most Funded Category for each year", xaxis_title="Year", 
+        yaxis_title="Total Amount Pledged in Most Funded Category"
+    )
+
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
+
+    
     return render_template('analytics.html', graphJSON=graphJSON)
