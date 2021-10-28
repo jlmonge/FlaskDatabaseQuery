@@ -185,16 +185,33 @@ std::string indent(unsigned int amt) {
 //--------------
 void readCurrentLine(bool vis, std::string& ref, std::vector<std::string>& bin) {
     std::string val = "";
+    bool openQuotes = false;
     for (unsigned i = 0; i < ref.size(); ++i) {
-        if (ref.at(i) == '\"') { val.append("\\\""); }
-        else if (ref.at(i) == '\\') { val.append("\\\\"); }
-        else if (ref.at(i) != ',' && static_cast<int>(ref.at(i)) > 31) { val.push_back(ref.at(i)); }
-        else {
-            bin.push_back(val);
-            if (vis) { std::cout << "   " << bin.size() << ".   " << bin.back() << "\n"; }
-            val.clear();
+        if (charValid(ref.at(i))) {
+            if (ref.at(i) == '\"') {
+                val.append("\\\"");
+                if (!openQuotes) { openQuotes = true; }
+                else { openQuotes = false; }
+            }
+            else if (ref.at(i) == '\\') { val.append("\\\\"); }
+            else if (ref.at(i) != ',' || openQuotes) { val.push_back(ref.at(i)); }
+            else {
+                bin.push_back(val);
+                if (vis) { std::cout << "   " << bin.size() << ".   " << bin.back() << "\n"; }
+                val.clear();
+            }
         }
     }
     if (vis) { std::cout << std::endl; }
 }
 //------------------------------
+
+//----- charValid() -----
+// Helper function for readCurrentLine().
+// Passes in a character.
+// Returns TRUE if the character is Ascii. FALSE otherwise.
+//-----------------------
+bool charValid(char c) {
+    if (static_cast<int>(c) > 31 && static_cast<int>(c) < 127) { return true; }
+    else { return false; }
+}
