@@ -1,7 +1,8 @@
 import os
 import json
 import io
-from flask import Flask, render_template, request, redirect, url_for, flash #imports from flask
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask.scaffold import find_package #imports from flask
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
 from category_searches import highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
 from add_function import add_to_json
@@ -472,4 +473,61 @@ def popularMonth():
 
     # Export graph to analytics.html
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return render_template('analytics.html', graphJSON=graphJSON)
+
+
+@app.route("/analytics_popcat")
+def category_per_month(): # most popular category per month
+
+    #used to keep track of the count of all the main categories
+    month_dict = {'01':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '02':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '03':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '04':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '05':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '06':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '07':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '08':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '09':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '10':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '11':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '12':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
+    categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
+        'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
+        'Dance']
+    #increments each category respectively
+    for proj in data:
+        projDate = proj['launched']
+        projMonth = projDate[5:7]
+        projCat = proj['main_category']
+        catIndex = categories.index(projCat)
+        month_dict[projMonth][catIndex] += 1
+    
+    finalListCat = []
+    finalListCount = []
+    listMonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    for key in month_dict.keys():
+        monthList = month_dict[key]
+        max_Ind = monthList.index(max(monthList))
+        cat = categories[max_Ind]
+        finalListCat.append(cat)
+        finalListCount.append(monthList[max_Ind])
+
+    print(finalListCat)
+    print(len(finalListCount))
+    fig = go.Figure(
+        data =[go.Bar(name='January', x=categories, y=month_dict['01']),
+            go.Bar(name='February', x=categories, y=month_dict['02']),
+            go.Bar(name='March', x=categories, y=month_dict['03']),
+            go.Bar(name='April', x=categories, y=month_dict['04']),
+            go.Bar(name='May', x=categories, y=month_dict['05']),
+            go.Bar(name='June', x=categories, y=month_dict['06']),
+            go.Bar(name='July', x=categories, y=month_dict['07']),
+            go.Bar(name='August', x=categories, y=month_dict['08']),
+            go.Bar(name='September', x=categories, y=month_dict['09']),
+            go.Bar(name='October', x=categories, y=month_dict['10']),
+            go.Bar(name='November', x=categories, y=month_dict['11']), 
+            go.Bar(name='December', x=categories, y=month_dict['12'])])
+
+
+    fig.update_layout( # change the bar mode
+        barmode='group', title="Most popular Category per Month", xaxis_title="Main categories", 
+        yaxis_title="Project Count"
+    ) 
+    fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
+
     return render_template('analytics.html', graphJSON=graphJSON)
