@@ -6,11 +6,10 @@ from flask.scaffold import find_package #imports from flask
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
 from category_searches import highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
 from add_function import add_to_json
-from shinjin_analytics import most_funded_category_per_year
 import plotly # pip install plotly==5.3.1
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from stat_functions import average_length_ks, bad_date#might move average_length_ks to app_interface
+from analytic_functions import average_length_ks, most_funded_category_per_year, bad_date
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
