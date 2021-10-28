@@ -351,3 +351,123 @@ def analytics_most_funded_category():
 
     
     return render_template('analytics.html', graphJSON=graphJSON)
+@app.route("/analytics_popmonth")
+def popularMonth():
+    year_dict = {
+        '2009':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2010':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2011':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2012':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2013':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2013':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2014':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2015':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2016':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2017':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2018':[0,0,0,0,0,0,0,0,0,0,0,0]
+    }
+    for proj in data:
+        launchTime = proj['launched'] # 2012-03-17 03:24:11
+        launchVals = launchTime.split('-') # ['2012', '03', '17 03:24:11']
+        if (launchVals[0] != '1970'): # ignoring "start of time" projects
+            year_dict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
+
+    monthList = ['Jan', 'Feb', 'Mar', 'Apr', 'May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+    # Create the graph
+    fig = go.Figure(
+        data=[go.Bar(name='2009', x=monthList, y=year_dict['2009']),
+            go.Bar(name='2010', x=monthList, y=year_dict['2010']),
+            go.Bar(name='2011', x=monthList, y=year_dict['2011']),
+            go.Bar(name='2012', x=monthList, y=year_dict['2012']),
+            go.Bar(name='2013', x=monthList, y=year_dict['2013']),
+            go.Bar(name='2014', x=monthList, y=year_dict['2014']),
+            go.Bar(name='2015', x=monthList, y=year_dict['2015']),
+            go.Bar(name='2016', x=monthList, y=year_dict['2016']),
+            go.Bar(name='2017', x=monthList, y=year_dict['2017']),
+            go.Bar(name='2018', x=monthList, y=year_dict['2018'])])
+    # Create the dropdown menu (Yes, you read that right. This massive chonker for one dropdown menu.)
+    fig.update_layout(
+        updatemenus=[
+            dict(
+                active=0,
+                buttons=list([
+                    dict(
+                        label="All",
+                        method="update",
+                        args=[{"visible": [True,True,True,True,True,True,True,True,True,True]},
+                        {"title": "Kickstarters launched across all years"}]
+                    ),
+                    dict(
+                        label="2009",
+                        method="update",
+                        args=[{"visible": [True,False,False,False,False,False,False,False,False,False]},
+                        {"title": "Kickstarters launched in 2009"}]
+                    ),
+                    dict(
+                        label="2010",
+                        method="update",
+                        args=[{"visible": [False,True,False,False,False,False,False,False,False,False]},
+                        {"title": "Kickstarters launched in 2010"}]
+                    ),
+                    dict(
+                        label="2011",
+                        method="update",
+                        args=[{"visible": [False,False,True,False,False,False,False,False,False,False]},
+                        {"title": "Kickstarters launched in 2011"}]
+                    ),
+                    dict(
+                        label="2012",
+                        method="update",
+                        args=[{"visible": [False,False,False,True,False,False,False,False,False,False]},
+                        {"title": "Kickstarters launched in 2012"}]
+                    ),
+                    dict(
+                        label="2013",
+                        method="update",
+                        args=[{"visible": [True,False,False,False,True,False,False,False,False,False]},
+                        {"title": "Kickstarters launched in 2013"}]
+                    ),
+                    dict(
+                        label="2014",
+                        method="update",
+                        args=[{"visible": [False,False,False,False,False,True,False,False,False,False]},
+                        {"title": "Kickstarters launched in 2014"}]
+                    ),
+                    dict(
+                        label="2015",
+                        method="update",
+                        args=[{"visible": [True,False,False,False,False,False,True,False,False,False]},
+                        {"title": "Kickstarters launched in 2015"}]
+                    ),
+                    dict(
+                        label="2016",
+                        method="update",
+                        args=[{"visible": [False,False,False,False,False,False,False,True,False,False]},
+                        {"title": "Kickstarters launched in 2016"}]
+                    ),
+                    dict(
+                        label="2017",
+                        method="update",
+                        args=[{"visible": [False,False,False,False,False,False,False,False,True,False]},
+                        {"title": "Kickstarters launched in 2017"}]
+                    ),
+                    dict(
+                        label="2018",
+                        method="update",
+                        args=[{"visible": [False,False,False,False,False,False,False,False,False,True]},
+                        {"title": "Kickstarters launched in 2018"}]
+                    ),
+                ])
+            ),
+        ]
+    )
+    # Change the title and axis labels
+    fig.update_layout(
+        title="Kickstarters launched across all years", xaxis_title="Month", 
+        yaxis_title="Number of projects launched"
+    ) 
+
+    # Export graph to analytics.html
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return render_template('analytics.html', graphJSON=graphJSON)
