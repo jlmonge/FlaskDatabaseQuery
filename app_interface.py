@@ -9,7 +9,7 @@ from shinjin_analytics import most_funded_category_per_year
 import plotly # pip install plotly==5.3.1
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from stat_functions import average_length_ks#might move average_length_ks to app_interface
+from stat_functions import average_length_ks, bad_date#might move average_length_ks to app_interface
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
@@ -368,6 +368,8 @@ def popularMonth():
     }
     for proj in data:
         launchTime = proj['launched'] # 2012-03-17 03:24:11
+        if bad_date(launchTime): #checks to see if launch time is actually a date
+            continue
         launchVals = launchTime.split('-') # ['2012', '03', '17 03:24:11']
         if (launchVals[0] != '1970'): # ignoring "start of time" projects
             year_dict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
