@@ -491,6 +491,8 @@ def category_per_month(): # most popular category per month
     #increments each category respectively
     for proj in data:
         projDate = proj['launched']
+        if bad_date(projDate):
+            continue
         projMonth = projDate[5:7]
         projCat = proj['main_category']
         catIndex = categories.index(projCat)
@@ -498,7 +500,7 @@ def category_per_month(): # most popular category per month
     
     finalListCat = []
     finalListCount = []
-    listMonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    #listMonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     for key in month_dict.keys():
         monthList = month_dict[key]
         max_Ind = monthList.index(max(monthList))
