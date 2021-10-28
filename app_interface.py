@@ -64,6 +64,10 @@ def search_state():
 def search_month():
     return search_helper('launched', request.method, "month")
 
+@app.route("/analytics",methods=['POST','GET'])
+def redirect_to_analytics():
+    return render_template('analytic_options.html')
+
 @app.route("/update_database")
 def update_database():
     file = os.path.join(app.static_folder, file_name) # location of json file
@@ -259,7 +263,9 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
         
     return render_template('results.html', projects=[proj])
 
-@app.route("/analytics")
+
+
+@app.route("/analytic_likely_fail")
 def category_fail():
     category_dict = { # key=main category, value=#successful[0],#failed[1]
         'Games':[0,0], 'Design':[0,0], 'Technology':[0,0], 'Film & Video':[0,0], 'Music':[0,0], 
@@ -291,7 +297,7 @@ def category_fail():
 
     return render_template('analytics.html', graphJSON=graphJSON)
 
-@app.route("/analytic_length")
+@app.route("/analytic_avg_length_ks")
 def make_length_analytic():
     labels, analyticByMonth, totalAverage = average_length_ks(data)
 
