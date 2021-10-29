@@ -9,7 +9,7 @@ from add_function import add_to_json
 import plotly # pip install plotly==5.3.1
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from analytic_functions import average_length_ks, most_funded_category_per_year, bad_date
+from analytic_functions import average_length_ks, most_funded_category_per_year, bad_date, countProjects
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
@@ -353,29 +353,8 @@ def analytics_most_funded_category():
     return render_template('analytics.html', graphJSON=graphJSON)
 @app.route("/analytics_popmonth")
 def popularMonth():
-    year_dict = {
-        '2009':[0,0,0,0,0,0,0,0,0,0,0,0],
-        '2010':[0,0,0,0,0,0,0,0,0,0,0,0],
-        '2011':[0,0,0,0,0,0,0,0,0,0,0,0],
-        '2012':[0,0,0,0,0,0,0,0,0,0,0,0],
-        '2013':[0,0,0,0,0,0,0,0,0,0,0,0],
-        '2013':[0,0,0,0,0,0,0,0,0,0,0,0],
-        '2014':[0,0,0,0,0,0,0,0,0,0,0,0],
-        '2015':[0,0,0,0,0,0,0,0,0,0,0,0],
-        '2016':[0,0,0,0,0,0,0,0,0,0,0,0],
-        '2017':[0,0,0,0,0,0,0,0,0,0,0,0],
-        '2018':[0,0,0,0,0,0,0,0,0,0,0,0]
-    }
-    for proj in data:
-        launchTime = proj['launched'] # 2012-03-17 03:24:11
-        if bad_date(launchTime): #checks to see if launch time is actually a date
-            continue
-        launchVals = launchTime.split('-') # ['2012', '03', '17 03:24:11']
-        if (launchVals[0] != '1970'): # ignoring "start of time" projects
-            year_dict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
-
+    year_dict = countProjects(data)
     monthList = ['Jan', 'Feb', 'Mar', 'Apr', 'May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-
     # Create the graph
     fig = go.Figure(
         data=[go.Bar(name='2009', x=monthList, y=year_dict['2009']),
@@ -427,7 +406,7 @@ def popularMonth():
                     dict(
                         label="2013",
                         method="update",
-                        args=[{"visible": [True,False,False,False,True,False,False,False,False,False]},
+                        args=[{"visible": [False,False,False,False,True,False,False,False,False,False]},
                         {"title": "Kickstarters launched in 2013"}]
                     ),
                     dict(
@@ -439,7 +418,7 @@ def popularMonth():
                     dict(
                         label="2015",
                         method="update",
-                        args=[{"visible": [True,False,False,False,False,False,True,False,False,False]},
+                        args=[{"visible": [False,False,False,False,False,False,True,False,False,False]},
                         {"title": "Kickstarters launched in 2015"}]
                     ),
                     dict(
@@ -469,7 +448,6 @@ def popularMonth():
         title="Kickstarters launched across all years", xaxis_title="Month", 
         yaxis_title="Number of projects launched"
     ) 
-
     # Export graph to analytics.html
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('analytics.html', graphJSON=graphJSON)

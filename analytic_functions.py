@@ -97,3 +97,35 @@ def average_length_ks(pyfile):
 
     return labels, returnData, totalAverage
 
+# ----- countProjects() -----
+# Helper function for analytics, namely popularMonth().
+# Passes in the datafile to be read.
+# Calls on bad_date for input validation.
+# Reads each entry, collects the date launched, and increments the corresponding list.
+# Returns the completed dictionary.
+# ----------------
+def countProjects(dataFile):
+    # list format: {Year}:[Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec]
+    # each value represents the number of projects launched in that month for that year.
+    retDict = {
+        '2009':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2010':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2011':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2012':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2013':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2013':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2014':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2015':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2016':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2017':[0,0,0,0,0,0,0,0,0,0,0,0],
+        '2018':[0,0,0,0,0,0,0,0,0,0,0,0]}
+
+    for item in dataFile:
+        launchTime = item['launched'] # 2012-03-17 03:24:11
+        if (bad_date(launchTime) == False): #checks to see if launch time is actually a date
+            launchVals = launchTime.split('-') # ['2012', '03', '17 03:24:11']
+            if (launchVals[0] != '1970'): # ignoring "start of time" projects
+                retDict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
+
+    return retDict
+# ----------------------------
