@@ -2,14 +2,13 @@ import os
 import json
 import io
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask.scaffold import find_package #imports from flask
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
 from category_searches import highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
 from add_function import add_to_json
 import plotly # pip install plotly==5.3.1
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from analytic_functions import average_length_ks, most_funded_category_per_year, bad_date, countProjects
+from analytic_functions import average_length_ks, count_cat_fail_success, most_funded_category_per_year, bad_date, countProjects, count_cat_fail_success
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
@@ -20,7 +19,7 @@ from analytic_functions import average_length_ks, most_funded_category_per_year,
 # export FLASK_DEBUG=1
 # flask run
 
-#dummy_file.json
+# dummy_file.json
 # GLOBAL VARIABLES
 file_name =  'ks-projects-201801.json'
 data = list()
@@ -266,25 +265,10 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
     return render_template('results.html', projects=[proj])
 
 
-
+#josephwork
 @app.route("/analytic_likely_fail")
 def category_fail():
-    category_dict = { # key=main category, value=#successful[0],#failed[1]
-        'Games':[0,0], 'Design':[0,0], 'Technology':[0,0], 'Film & Video':[0,0], 'Music':[0,0], 
-        'Publishing':[0,0], 'Fashion':[0,0], 'Food':[0,0], 'Art':[0,0], 
-        'Comics':[0,0], 'Photography':[0,0], 'Theater':[0,0], 'Crafts':[0,0], 
-        'Journalism':[0,0], 'Dance':[0,0]}
-    for proj in data:
-        if proj['state'] == 'successful':
-            category_dict[proj['main_category']][0] += 1
-        elif proj['state'] == 'failed' or proj['state'] == 'canceled':
-            category_dict[proj['main_category']][1] += 1
-   
-    category_names = list(category_dict.keys())
-    # FOR DEBUGGING: category_successful = [x[0] for x in list(category_dict.values())]
-    # FOR DEBUGGING: category_failed = [x[1] for x in list(category_dict.values())]
-    category_failed_ratio = [x[1] / (x[0] + x[1]) if x[0] or x[1] else 0 for x \
-        in list(category_dict.values())] # list comprehension
+    category_names, category_failed_ratio = count_cat_fail_success(data)
 
     fig = go.Figure(data=[
         go.Bar(x=category_names, y=category_failed_ratio) # create the bar chart

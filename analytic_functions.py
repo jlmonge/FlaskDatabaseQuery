@@ -129,3 +129,22 @@ def countProjects(dataFile):
 
     return retDict
 # ----------------------------
+
+def count_cat_fail_success(data):
+    category_dict = { # key=main category, value=#successful[0],#failed[1]
+        'Games':[0,0], 'Design':[0,0], 'Technology':[0,0], 'Film & Video':[0,0], 'Music':[0,0], 
+        'Publishing':[0,0], 'Fashion':[0,0], 'Food':[0,0], 'Art':[0,0], 
+        'Comics':[0,0], 'Photography':[0,0], 'Theater':[0,0], 'Crafts':[0,0], 
+        'Journalism':[0,0], 'Dance':[0,0]}
+    for proj in data:
+        if proj['state'] == 'successful':
+            category_dict[proj['main_category']][0] += 1
+        elif proj['state'] == 'failed' or proj['state'] == 'canceled':
+            category_dict[proj['main_category']][1] += 1
+   
+    category_names = list(category_dict.keys())
+    # FOR DEBUGGING: category_successful = [x[0] for x in list(category_dict.values())]
+    # FOR DEBUGGING: category_failed = [x[1] for x in list(category_dict.values())]
+    category_failed_ratio = [x[1] / (x[0] + x[1]) if x[0] or x[1] else 0 for x \
+        in list(category_dict.values())] # list comprehension
+    return category_names, category_failed_ratio
