@@ -1,11 +1,12 @@
 {% extends "layout.html" %} <!-- retrieve layout -->
 {% block content %} <!-- lines up with the "block content" in layout.html -->
 <div class="page-content">
-   <form action="" method="POST">
+   <form id="editForm"action="" method="POST">
       <!-- p tag represents a paragraph.(seperate block of text) -->
       <!-- input is how we get forms from users -->
       <!-- "type" how we are recieving input.("submit is a button, text is a bar") -->
       <!-- "name" the name of the text request.form looks for -->
+      <fieldset>
       <p>ID of project that will be edited: <input type="number" name="id_to_edit" min="1" oninput="validity.valid||(value='');"></p>
       <br>
       <p>New ID: <input type="number" name="new_id" min="1" oninput="validity.valid||(value='');"></p>
@@ -53,7 +54,8 @@
       </select>
       <p>New backers: <input type="number" name="new_backers" min="0" oninput="validity.valid||(value='');"></p>
       <p>New country: <input type="text" name="new_country"></p>
-      <p><input type="submit" value="Submit"></p>
+      <p><input type="button"  class="button_v1" value = "Submit" onclick="document.getElementById('editForm').submit();"> </p>
+    </fieldset>
    </form>
 </div>
 {% endblock content %} <!-- indicates "block content" is done -->

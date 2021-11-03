@@ -1,7 +1,7 @@
 {% extends "layout.html" %} <!-- retrieve layout -->
 {% block content %} <!-- lines up with the "block content" in layout.html -->
 <div class="page-content">
-   <form action="" method="POST">
+   <form id="addForm"action="" method="POST">
       <fieldset> 
       <legend>Add Kickstarter </legend>
       <!-- p tag represents a paragraph.(seperate block of text) -->
@@ -54,7 +54,7 @@
       <label>Amount real USD Pledged</label>
       <p><input type="number" name="amount_usd_pledged_real"></p>
 
-      <p><input type="submit" value="Submit"></p>
+      <p><input type="button" class="button_v1" value = "Submit" onclick="document.getElementById('addForm').submit();"> </p>
       </fieldset> 
     
    </form>

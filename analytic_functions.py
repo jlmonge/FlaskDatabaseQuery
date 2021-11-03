@@ -68,14 +68,20 @@ def average_length_ks(pyfile):
     totalDates = 0
     dataByMonth = list() #
     #listValues = ["year",0.0,0]#"year or total", sum of lengths, number of values
+    if len(pyfile) == 0 or not pyfile[0]:#quick check to see if pyfile is either empty or has an empty dictionary inside
+        print("empty file passed into analytic") 
+        return labels, returnData,totalAverage
     for i in pyfile:
         if bad_date(i["launched"]) or bad_date(i["deadline"]):#if the lanch or deadline date return true then they are bad dates and we ignore the input
             continue
         startDate = date(int(i["launched"][0:4]),int(i["launched"][5:7]),int(i["launched"][8:10]))
         endDate = date(int(i["deadline"][0:4]),int(i["deadline"][5:7]),int(i["deadline"][8:10]))
         
-        timeBetween = endDate - startDate 
-        
+        timeBetween = endDate - startDate #calculate time between start and end date
+
+        if timeBetween.days < 0:#if start day is after end date then we throw away the ks
+            continue
+
         yearNotInList = True
         for val in range(len(dataByMonth)):
             if dataByMonth[val][0] == i["launched"][0:4]:
@@ -92,7 +98,11 @@ def average_length_ks(pyfile):
         returnData.append(iteration[1]/iteration[2])
         totalDates = iteration[2] + totalDates
         totalAverage = iteration[1] + totalAverage
-    totalAverage = totalAverage/totalDates
+
+    if totalDates == 0:#error check for if there were only bad kickstarters passed in to prevent divide by zero
+        totalAverage = 0
+    else:
+        totalAverage = totalAverage/totalDates
 
 
     return labels, returnData, totalAverage
@@ -119,6 +129,10 @@ def countProjects(dataFile):
         '2016':[0,0,0,0,0,0,0,0,0,0,0,0],
         '2017':[0,0,0,0,0,0,0,0,0,0,0,0],
         '2018':[0,0,0,0,0,0,0,0,0,0,0,0]}
+
+    if len(dataFile) == 0 or not dataFile[0]:#quick check to see if pyfile is either empty or has an empty dictionary inside
+            print("empty file passed into analytic")
+            return retDict
 
     for item in dataFile:
         launchTime = item['launched'] # 2012-03-17 03:24:11

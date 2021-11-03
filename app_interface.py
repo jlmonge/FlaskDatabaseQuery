@@ -121,6 +121,15 @@ def search():
         #return redirect(url_for('get_id', id=id))
     return render_template('search-options.html')
 
+@app.route("/update_ks_route",methods=['POST','GET'])
+def update_ks():
+    if request.method == 'POST': # will only run below code if client is posting
+        choiceSearch = request.form.get('choice')
+        if not choiceSearch or choiceSearch.isspace():
+            return redirect(request.url)
+        #return redirect(url_for('get_id', id=id))
+    return render_template('updateDB-options.html')
+
 
 @app.route("/delete",methods=['POST','GET'])
 def delete_kickstarter():
