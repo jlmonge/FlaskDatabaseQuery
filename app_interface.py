@@ -8,7 +8,7 @@ from add_function import add_to_json
 import plotly # pip install plotly==5.3.1
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from analytic_functions import average_length_ks, count_cat_fail_success, most_funded_category_per_year, bad_date, countProjects, count_cat_fail_success
+from analytic_functions import average_length_ks, count_cat_fail_success, most_funded_category_per_year, bad_date, countProjects, count_cat_fail_success, findAmbitious, gatherYears
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
@@ -502,4 +502,85 @@ def category_per_month(): # most popular category per month
     fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
 
+    return render_template('analytics.html', graphJSON=graphJSON)
+
+@app.route("/analytics_ambitious")
+# I did some peculiar things with this function, but it allows for us to run this same analytic on any size of data (ex. completed 2018, 2019, 2020 data is added)
+# I'll add some documentation for anyone who wants to look through it.
+def ambitiousProjects():
+    # Variable initialization
+    monthList = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] # All months
+    yearList = gatherYears(data) # All years in the data set
+    projectDict = findAmbitious(data) # All ambitious projects in the data set
+    tabList = [] # All tabs to be supported by the graph
+    visList = [] # Visible statuses, needed for tabs
+    fig = go.Figure() # Make the figure and add basic details
+    fig.update_layout(
+        title="Most Ambitious Projects",
+        xaxis_title="Month",
+        yaxis_title="US $"
+    )
+
+    # Data collection and formatting
+    for year in yearList: # For every year,
+        IDList = [] # Collect the ID's,
+        goalList = [] # goals,
+        pledgeList = [] # and amount pledged
+        for m in range(1,13): # Across each year-month combination
+            date = '-'.join((year,str(m).zfill(2)))
+            try:
+                proj = projectDict.get(date)
+                IDList.append(('ID: ' + str(proj[0])))
+                goalList.append(proj[1])
+                pledgeList.append(proj[2])
+            except:
+                pass
+        fig.add_trace(go.Bar( # Then, add a bar for this year-month's goals
+            x=monthList,
+            y=goalList,
+            name='Goal',
+            hovertext=IDList
+        ))
+        fig.add_trace(go.Bar( # and add a bar for this year-month's pledges
+            x=monthList,
+            y=pledgeList,
+            name='Pledges',
+            hovertext=IDList
+        ))
+        tabTitle = "Most Ambitious Projects for " + year
+        tabList.append( # and add a new dictionary so this year can be isolated on the graph
+            dict(
+                label=year,
+                method="update",
+                args=[{"visible": []}, # This blank list will be filled later
+                {"title": tabTitle}]
+            )
+        )
+        visList.append(False) # and add two booleans to the visList, one for each new bar
+        visList.append(False)
+
+    # Graph formatting
+    visIndex = 0 # Starting at index 0
+    for item in tabList: # For every tab to be made,
+        copyVis = visList.copy() # Create a copy of our visList
+        try:
+            copyVis[visIndex] = True # and allow only the two necessary bars to be seen
+            copyVis[(visIndex + 1)] = True
+        except:
+            print('An error occurred! Graph may not display correctly!') # If something bad happens, don't crash
+        finally:
+            item['args'][0]['visible'] = copyVis # Update this bar's visible arguments to the proper values instead of a blank list
+            visIndex += 2 # Increment visIndex by 2 for the next loop
+
+    fig.update_layout(
+        updatemenus=[
+            dict(
+                active=0,
+                buttons=tabList
+            )
+        ]
+    )
+    
+    # Finally, export the graph
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('analytics.html', graphJSON=graphJSON)

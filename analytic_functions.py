@@ -1,6 +1,7 @@
 #this file will contain all the functions that we use to create the data that we will pass to the graphs
 
 from datetime import date
+from decimal import Decimal
 
 def check_float(potential_float): 
     try:
@@ -162,3 +163,49 @@ def count_cat_fail_success(data):
     category_failed_ratio = [x[1] / (x[0] + x[1]) if x[0] or x[1] else 0 for x \
         in list(category_dict.values())] # list comprehension
     return category_names, category_failed_ratio
+
+# ----- findAmbitious() -----
+# Helper function for analytics, namely ambitiousProjects()
+# Passes in the data file to be read.
+# Calls on bad_date() for input validation.
+# Reads each entry, locates which year and month it belongs to, compares goals, keeps the higher one.
+# If goals are equal, keeps the project with the highest pledged.
+# Returns the completed and sorted-by-date list
+# -------------
+def findAmbitious(dataFile):
+    # list format: [year-month]:[ID,goal,pledged]
+    retDict = {}
+    for item in dataFile:
+        if (bad_date(item['launched']) == False): # 2012-03-17 03:24:11
+            date = item['launched'][0:7] # 2012-03
+            itemVals = [int(item['ID']),int(Decimal(item['goal'])),int(Decimal(item['pledged']))]
+            try:
+                compVals = retDict.get(date)
+                # if goal is higher, or goal is equal and pledged is higher
+                if ((itemVals[1] > compVals[1]) or ((itemVals[1] == compVals[1]) and (itemVals[2] > compVals[2]))):
+                    retDict[date] = itemVals
+            except:
+                retDict.setdefault(date, itemVals)
+    sortDict = {}
+    for i in sorted(retDict):
+        sortDict[i] = retDict[i]
+    return sortDict
+# ---------------------------
+
+# ----- gatherYears() -----
+# Helper function for analytics, namely ambitiousProjects().
+# Passes in the data file to be read.
+# Calls on bad_date for input validation.
+# Reads each entry, adds a new year if it is not yet added.
+# Returns the completed list of years.
+# -------------
+def gatherYears(dataFile):
+    retList = []
+    for item in dataFile:
+       date =  item['launched'] # 2012-03-17 03:24:11
+       if (bad_date(date) == False):
+           try: retList.index(date[0:4]) # find 2012 in list, if not...
+           except: retList.append(date[0:4]) # add 2012 to list
+    retList.sort() # sort years in ascending order
+    return retList
+# -------------------------
