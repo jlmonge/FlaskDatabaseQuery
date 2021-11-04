@@ -11,6 +11,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 #from analytic_functions import average_length_ks, count_cat_fail_success, most_funded_category_per_year, bad_date, countProjects, count_cat_fail_success, findAmbitious, gatherYears
 from analytic_functions import *
+#from analytic_functions import average_length_ks, most_funded_category_per_year, bad_date, countProjects, count_words,count_categories_per_month
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
@@ -346,6 +347,7 @@ def analytics_most_funded_category():
 
     
     return render_template('analytics.html', graphJSON=graphJSON)
+
 @app.route("/analytics_popmonth")
 def popularMonth():
     year_dict = countProjects(data)
@@ -446,7 +448,6 @@ def popularMonth():
     # Export graph to analytics.html
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('analytics.html', graphJSON=graphJSON)
-
 
 @app.route("/analytics_popcat")
 def category_per_month(): # most popular category per month
@@ -637,3 +638,20 @@ def popular_category_perNation():
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
     return render_template('analytics.html', graphJSON=graphJSON)
 
+@app.route("/success_words")
+def most_successful_words():
+    
+    list_of_words, list_of_count = count_words(data)
+
+    fig = go.Figure(data=[
+        go.Bar(x=list_of_words, y=list_of_count) # create the bar chart
+    ])
+    
+    fig.update_layout( # change the bar mode
+        title="Most frequent words in successful projects", xaxis_title="Words", 
+        yaxis_title="Count"
+    )
+
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
+
+    return render_template('analytics.html', graphJSON=graphJSON)

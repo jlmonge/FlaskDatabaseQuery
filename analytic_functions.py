@@ -1,5 +1,6 @@
 #this file will contain all the functions that we use to create the data that we will pass to the graphs
 
+from collections import Counter
 from datetime import date
 from decimal import Decimal
 
@@ -21,6 +22,9 @@ def most_funded_category_per_year(year , file_data):
         'Journalism': 0, 'Dance': 0}
 
     result = []
+
+    if(file_data == [{}]):
+        return "";
 
     
     for key in file_data:
@@ -151,6 +155,9 @@ def count_cat_fail_success(data):
         'Publishing':[0,0], 'Fashion':[0,0], 'Food':[0,0], 'Art':[0,0], 
         'Comics':[0,0], 'Photography':[0,0], 'Theater':[0,0], 'Crafts':[0,0], 
         'Journalism':[0,0], 'Dance':[0,0]}
+
+    if(data == [{}]):
+        return [{}]
     for proj in data:
         if proj['state'] == 'successful':
             category_dict[proj['main_category']][0] += 1
@@ -216,6 +223,31 @@ def gatherYears(dataFile):
     return retList
 # -------------------------
 
+##Successful words analytics
+def count_words(data):
+    list_of_words = []
+    list_of_count = []
+
+    count_dict = {}
+    
+    for item in data:
+        if 'state' in item.keys():
+            if(item['state'] == "successful"):
+                res = item['name'].split()
+                for i in res:
+                    if(len(i) >= 4):
+                        if i in count_dict:
+                            count_dict[i] += 1
+                        else:
+                            count_dict[i] = 1
+    
+    new_dict = dict(Counter(count_dict).most_common(10))
+
+    for key, value in new_dict.items():
+        list_of_words.append(key)
+        list_of_count.append(value)
+
+    return list_of_words,list_of_count
 
 
 def count_categories_per_month(data):
@@ -233,7 +265,7 @@ def count_categories_per_month(data):
 
     if len(data) == 0 or not data[0]:#quick check to see if pyfile is either empty or has an empty dictionary inside
         print("empty file passed into analytic") 
-        return month_dict
+        return [{}]
     #increments each category respectively
     for proj in data:
         projDate = proj['launched']
