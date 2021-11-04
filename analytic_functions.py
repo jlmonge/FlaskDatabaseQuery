@@ -171,3 +171,26 @@ def count_categories_per_month(data):
         catIndex = categories.index(projCat)
         month_dict[projMonth][catIndex] += 1
     return month_dict
+
+
+
+
+def get_countrys_category(data):
+    categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
+        'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
+        'Dance'] 
+    analyticDict = {}
+
+    for proj in data:
+        projCountry = proj['country']
+        projCat = proj['main_category']
+        catIndex = categories.index(projCat)
+        if projCountry in analyticDict.keys(): # no need to create new entry in the dictionary
+            analyticDict[projCountry][catIndex] += 1
+        else:
+            #makes entry for the newly detected country
+            analyticDict[projCountry] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            analyticDict[projCountry][catIndex] += 1 
+
+
+    return analyticDict

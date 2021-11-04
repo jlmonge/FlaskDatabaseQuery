@@ -1,6 +1,7 @@
 import os
 import json
 import io
+from typing import final
 from flask import Flask, render_template, request, redirect, url_for, flash
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
 from category_searches import highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
@@ -444,7 +445,7 @@ def category_per_month(): # most popular category per month
     categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
         'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
         'Dance']
-    final_Dict = count_categories_per_country(data)
+    final_Dict = count_categories_per_month(data)
     finalListCat = []
     finalListCount = []
     #listMonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -480,3 +481,68 @@ def category_per_month(): # most popular category per month
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
 
     return render_template('analytics.html', graphJSON=graphJSON)
+
+
+
+
+@app.route("/analytics_popnation")
+def popular_category_perNation():
+    
+            
+            #increment that category up by one
+            # analyticDict[projCountry][catIndex] += 1 
+    countryDict = get_countrys_category(data)        
+    categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
+        'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
+        'Dance'] 
+    catList = []
+    finalListCountry = []
+    finalListCat = []
+    finalListCount = []
+
+    for i in countryDict:
+        catList = countryDict[i]
+        max_Ind = catList.index(max(catList)) 
+        finalListCountry.append(i)
+        finalListCount.append(catList[max_Ind])
+        finalListCat.append(categories[max_Ind])
+
+    keysList = list(countryDict.keys())
+
+    
+    print(countryDict[keysList[0]])
+    fig = go.Figure(
+        data =[go.Bar(name=keysList[0], x=categories, y=countryDict[keysList[0]]),
+            go.Bar(name=keysList[1], x=categories, y=countryDict[keysList[1]]),
+            go.Bar(name=keysList[2], x=categories, y=countryDict[keysList[2]]),
+            go.Bar(name= keysList[3], x=categories, y=countryDict[keysList[3]]),
+            go.Bar(name= keysList[4], x=categories, y=countryDict[keysList[4]]),
+            go.Bar(name= keysList[5], x=categories, y=countryDict[keysList[5]]),
+            go.Bar(name= keysList[6], x=categories, y=countryDict[keysList[6]]),
+            go.Bar(name= keysList[7], x=categories, y=countryDict[keysList[7]]),
+            go.Bar(name= keysList[8], x=categories, y=countryDict[keysList[8]]),
+            go.Bar(name= keysList[9], x=categories, y=countryDict[keysList[9]]),
+            go.Bar(name= keysList[10], x=categories, y=countryDict[keysList[10]]), 
+            go.Bar(name= keysList[11], x=categories, y=countryDict[keysList[11]]), 
+            go.Bar(name= keysList[12], x=categories, y=countryDict[keysList[12]]), 
+            go.Bar(name= keysList[13], x=categories, y=countryDict[keysList[13]]), 
+            go.Bar(name= keysList[14], x=categories, y=countryDict[keysList[14]]),
+            go.Bar(name=keysList[15], x=categories, y=countryDict[keysList[15]]),
+            go.Bar(name=keysList[16], x=categories, y=countryDict[keysList[16]]),
+            go.Bar(name= keysList[17], x=categories, y=countryDict[keysList[17]]),
+            go.Bar(name= keysList[18], x=categories, y=countryDict[keysList[18]]),
+            go.Bar(name= keysList[19], x=categories, y=countryDict[keysList[19]]),
+            go.Bar(name= keysList[20], x=categories, y=countryDict[keysList[20]]),
+            go.Bar(name= keysList[21], x=categories, y=countryDict[keysList[21]]),
+            go.Bar(name= keysList[22], x=categories, y=countryDict[keysList[22]])
+            ])
+
+
+    fig.update_layout( # change the bar mode
+        barmode='group', title="Most Popular Category in Each Country", xaxis_title="Countries", 
+        yaxis_title="Project Count"
+    ) 
+    fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
+    return render_template('analytics.html', graphJSON=graphJSON)
+
