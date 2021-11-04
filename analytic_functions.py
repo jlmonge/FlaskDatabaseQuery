@@ -215,3 +215,52 @@ def gatherYears(dataFile):
     retList.sort() # sort years in ascending order
     return retList
 # -------------------------
+
+
+
+def count_categories_per_month(data):
+    #dictionary for the months as keys and categories as values
+    month_dict = {'01':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '02':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '03':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '04':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '05':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '06':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '07':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '08':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '09':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '10':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '11':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '12':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
+
+    categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
+        'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
+        'Dance']
+    #increments each category respectively
+    for proj in data:
+        projDate = proj['launched']
+        if bad_date(projDate):
+            continue
+        projMonth = projDate[5:7] # substring of the month 
+        projCat = proj['main_category']
+        catIndex = categories.index(projCat)
+        month_dict[projMonth][catIndex] += 1 #increment up that category 
+    return month_dict
+
+
+
+
+def get_countrys_category(data):
+    #main categories below
+    categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
+        'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
+        'Dance'] 
+    analyticDict = {}
+
+    #looping through dataset to add entries
+    for proj in data:
+        projCountry = proj['country']
+        projCat = proj['main_category']
+        catIndex = categories.index(projCat)
+        if projCountry in analyticDict.keys(): # no need to create new entry in the dictionary
+            analyticDict[projCountry][catIndex] += 1
+        else:
+            #makes entry for the newly detected country
+            analyticDict[projCountry] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            analyticDict[projCountry][catIndex] += 1 
+
+
+    return analyticDict
