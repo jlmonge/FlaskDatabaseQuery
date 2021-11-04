@@ -489,17 +489,18 @@ def category_per_month(): # most popular category per month
 def popular_category_perNation():
     
             
-            #increment that category up by one
-            # analyticDict[projCountry][catIndex] += 1 
-    countryDict = get_countrys_category(data)        
+    #this variable holds the dictionary that has each country as a key and occurence of each main_category
+    countryDict = get_countrys_category(data)    
+
     categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
         'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
         'Dance'] 
+        
     catList = []
     finalListCountry = []
     finalListCat = []
     finalListCount = []
-
+    #used to separate dictionary info into individual lists
     for i in countryDict:
         catList = countryDict[i]
         max_Ind = catList.index(max(catList)) 
