@@ -1,5 +1,6 @@
 #this file will contain all the functions that we use to create the data that we will pass to the graphs
 
+from collections import Counter
 from datetime import date
 
 def check_float(potential_float): 
@@ -20,6 +21,9 @@ def most_funded_category_per_year(year , file_data):
         'Journalism': 0, 'Dance': 0}
 
     result = []
+
+    if(file_data == [{}]):
+        return "";
 
     
     for key in file_data:
@@ -129,3 +133,77 @@ def countProjects(dataFile):
 
     return retDict
 # ----------------------------
+
+def count_cat_fail_success(data):
+    category_dict = { # key=main category, value=#successful[0],#failed[1]
+        'Games':[0,0], 'Design':[0,0], 'Technology':[0,0], 'Film & Video':[0,0], 'Music':[0,0], 
+        'Publishing':[0,0], 'Fashion':[0,0], 'Food':[0,0], 'Art':[0,0], 
+        'Comics':[0,0], 'Photography':[0,0], 'Theater':[0,0], 'Crafts':[0,0], 
+        'Journalism':[0,0], 'Dance':[0,0]}
+
+    if(data == [{}]):
+        return [{}]
+    for proj in data:
+        if proj['state'] == 'successful':
+            category_dict[proj['main_category']][0] += 1
+        elif proj['state'] == 'failed' or proj['state'] == 'canceled':
+            category_dict[proj['main_category']][1] += 1
+   
+    category_names = list(category_dict.keys())
+    # FOR DEBUGGING: category_successful = [x[0] for x in list(category_dict.values())]
+    # FOR DEBUGGING: category_failed = [x[1] for x in list(category_dict.values())]
+    category_failed_ratio = [x[1] / (x[0] + x[1]) if x[0] or x[1] else 0 for x \
+        in list(category_dict.values())] # list comprehension
+    return category_names, category_failed_ratio
+
+##Successful words analytics
+def count_words(data):
+    list_of_words = []
+    list_of_count = []
+
+    count_dict = {}
+    
+    for item in data:
+        if 'state' in item.keys():
+            if(item['state'] == "successful"):
+                res = item['name'].split()
+                for i in res:
+                    if(len(i) >= 4):
+                        if i in count_dict:
+                            count_dict[i] += 1
+                        else:
+                            count_dict[i] = 1
+    
+    new_dict = dict(Counter(count_dict).most_common(10))
+
+    for key, value in new_dict.items():
+        list_of_words.append(key)
+        list_of_count.append(value)
+
+    return list_of_words,list_of_count
+
+
+def count_categories_per_month(data):
+    #dictionary for the months as keys and categories as values
+    if(data == [{}]):
+        return [{}]
+
+    month_dict = {'01':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '02':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '03':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '04':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '05':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '06':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '07':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '08':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '09':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '10':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '11':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '12':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
+
+    categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
+        'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
+        'Dance']
+    #increments each category respectively
+    for proj in data:
+        projDate = proj['launched']
+        if bad_date(projDate):
+            continue
+        projMonth = projDate[5:7] # substring of the month 
+        projCat = proj['main_category']
+        catIndex = categories.index(projCat)
+        month_dict[projMonth][catIndex] += 1 #increment up that category 
+    return month_dict
