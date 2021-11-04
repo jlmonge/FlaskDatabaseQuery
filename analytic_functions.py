@@ -148,3 +148,26 @@ def count_cat_fail_success(data):
     category_failed_ratio = [x[1] / (x[0] + x[1]) if x[0] or x[1] else 0 for x \
         in list(category_dict.values())] # list comprehension
     return category_names, category_failed_ratio
+
+
+
+
+def count_categories_per_country(data):
+    month_dict = {'01':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '02':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '03':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '04':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '05':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '06':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '07':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '08':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '09':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '10':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '11':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '12':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
+    categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
+        'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
+        'Dance']
+    #increments each category respectively
+    for proj in data:
+        projDate = proj['launched']
+        if bad_date(projDate):
+            continue
+        projMonth = projDate[5:7]
+        projCat = proj['main_category']
+        catIndex = categories.index(projCat)
+        month_dict[projMonth][catIndex] += 1
+    return month_dict

@@ -8,7 +8,7 @@ from add_function import add_to_json
 import plotly # pip install plotly==5.3.1
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from analytic_functions import average_length_ks, count_cat_fail_success, most_funded_category_per_year, bad_date, countProjects, count_cat_fail_success
+from analytic_functions import *
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
@@ -441,29 +441,15 @@ def popularMonth():
 def category_per_month(): # most popular category per month
 
     #used to keep track of the count of all the main categories
-    month_dict = {'01':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '02':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        '03':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '04':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '05':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        '06':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '07':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '08':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        '09':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '10':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '11':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        '12':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
     categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
         'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
         'Dance']
-    #increments each category respectively
-    for proj in data:
-        projDate = proj['launched']
-        if bad_date(projDate):
-            continue
-        projMonth = projDate[5:7]
-        projCat = proj['main_category']
-        catIndex = categories.index(projCat)
-        month_dict[projMonth][catIndex] += 1
-    
+    final_Dict = count_categories_per_country(data)
     finalListCat = []
     finalListCount = []
     #listMonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-    for key in month_dict.keys():
-        monthList = month_dict[key]
+    for key in final_Dict.keys():
+        monthList = final_Dict[key]
         max_Ind = monthList.index(max(monthList))
         cat = categories[max_Ind]
         finalListCat.append(cat)
@@ -472,18 +458,18 @@ def category_per_month(): # most popular category per month
     print(finalListCat)
     print(len(finalListCount))
     fig = go.Figure(
-        data =[go.Bar(name='January', x=categories, y=month_dict['01']),
-            go.Bar(name='February', x=categories, y=month_dict['02']),
-            go.Bar(name='March', x=categories, y=month_dict['03']),
-            go.Bar(name='April', x=categories, y=month_dict['04']),
-            go.Bar(name='May', x=categories, y=month_dict['05']),
-            go.Bar(name='June', x=categories, y=month_dict['06']),
-            go.Bar(name='July', x=categories, y=month_dict['07']),
-            go.Bar(name='August', x=categories, y=month_dict['08']),
-            go.Bar(name='September', x=categories, y=month_dict['09']),
-            go.Bar(name='October', x=categories, y=month_dict['10']),
-            go.Bar(name='November', x=categories, y=month_dict['11']), 
-            go.Bar(name='December', x=categories, y=month_dict['12'])])
+        data =[go.Bar(name='January', x=categories, y=final_Dict['01']),
+            go.Bar(name='February', x=categories, y=final_Dict['02']),
+            go.Bar(name='March', x=categories, y=final_Dict['03']),
+            go.Bar(name='April', x=categories, y=final_Dict['04']),
+            go.Bar(name='May', x=categories, y=final_Dict['05']),
+            go.Bar(name='June', x=categories, y=final_Dict['06']),
+            go.Bar(name='July', x=categories, y=final_Dict['07']),
+            go.Bar(name='August', x=categories, y=final_Dict['08']),
+            go.Bar(name='September', x=categories, y=final_Dict['09']),
+            go.Bar(name='October', x=categories, y=final_Dict['10']),
+            go.Bar(name='November', x=categories, y=final_Dict['11']), 
+            go.Bar(name='December', x=categories, y=final_Dict['12'])])
 
 
     fig.update_layout( # change the bar mode
