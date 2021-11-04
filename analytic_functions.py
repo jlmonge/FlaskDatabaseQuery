@@ -172,9 +172,12 @@ def count_cat_fail_success(data):
 # If goals are equal, keeps the project with the highest pledged.
 # Returns the completed and sorted-by-date list
 # -------------
-def findAmbitious(dataFile):
+def findAmbitious(dataFile): 
     # list format: [year-month]:[ID,goal,pledged]
     retDict = {}
+    if len(dataFile) == 0 or not dataFile[0]:#quick check to see if pyfile is either empty or has an empty dictionary inside
+        print("empty file passed into analytic") 
+        return retDict
     for item in dataFile:
         if (bad_date(item['launched']) == False): # 2012-03-17 03:24:11
             date = item['launched'][0:7] # 2012-03
@@ -201,6 +204,9 @@ def findAmbitious(dataFile):
 # -------------
 def gatherYears(dataFile):
     retList = []
+    if len(dataFile) == 0 or not dataFile[0]:#quick check to see if pyfile is either empty or has an empty dictionary inside
+        print("empty file passed into analytic") 
+        return retList
     for item in dataFile:
        date =  item['launched'] # 2012-03-17 03:24:11
        if (bad_date(date) == False):
