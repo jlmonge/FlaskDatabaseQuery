@@ -60,7 +60,7 @@ class unit_tests_average_length_ks:
         assert ("2016" not in labels), "launched after deadline, ks is thrown away"
 
 
-#NOTE: Current implementation of count projects does not handle years after 2018.
+##Note: Current implementation of count projects does not handle years after 2018.
 class unit_tests_count_projects:
     def run_all(self):
         self.single_ks()
@@ -88,8 +88,9 @@ class unit_tests_count_projects:
         assert(returnDictionary['2014'][7] == 2),"two ks in 08 of 2014"
         assert(returnDictionary['2015'][8] == 2),"two ks in 09 of 2015"
         assert(returnDictionary['2011'][0] == 1),"one ks in 01 of 2011"
+unit_tests_count_projects_object = unit_tests_count_projects()
+unit_tests_count_projects_object.run_all()
+
 
 avg_length_unit_test_object = unit_tests_average_length_ks()
 avg_length_unit_test_object.run_all()
-unit_tests_count_projects_object = unit_tests_count_projects()
-unit_tests_count_projects_object.run_all()
