@@ -1,4 +1,5 @@
 import os
+import time
 import json
 import io
 from typing import final
@@ -26,6 +27,9 @@ from analytic_functions import *
 # GLOBAL VARIABLES
 file_name =  'ks-projects-201801.json'
 data = list()
+yearDict = dict()
+hasChanged = bool()
+
 
 def search_helper(key, method="GET", input_type=''):
     if method == 'POST': # will only run below code if client is posting
@@ -131,6 +135,7 @@ def update_ks():
         if not choiceSearch or choiceSearch.isspace():
             return redirect(request.url)
         #return redirect(url_for('get_id', id=id))
+    
     return render_template('updateDB-options.html')
 
 
@@ -273,7 +278,7 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
             break
     if not projectFound:
         return render_template('results.html', projects=[], message="Project not found")
-        
+    hasChanged = True
     return render_template('results.html', projects=[proj])
 
 
@@ -350,7 +355,12 @@ def analytics_most_funded_category():
 
 @app.route("/analytics_popmonth")
 def popularMonth():
-    year_dict = countProjects(data)
+    start = time.time() #used to keep track of time.
+    year_dict = yearDict
+    dictLen = len(year_dict)
+    if(dictLen == 0): #checks if data has already been added.
+        year_dict = countProjects(data) #if it hasn't then begins to populate the dictionary
+
     monthList = ['Jan', 'Feb', 'Mar', 'Apr', 'May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
     # Create the graph
     fig = go.Figure(
@@ -446,7 +456,10 @@ def popularMonth():
         yaxis_title="Number of projects launched"
     ) 
     # Export graph to analytics.html
+    
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    end = time.time()
+    print(end - start)
     return render_template('analytics.html', graphJSON=graphJSON)
 
 @app.route("/analytics_popcat")
