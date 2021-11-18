@@ -1,4 +1,5 @@
 import os
+import time
 import json
 import io
 import time
@@ -16,7 +17,7 @@ from analytic_functions import *
 # notice here that index.html does not need to be passed in. That is because it is in the templates folder
 # In the future we might use templates to reduce redundant html code.
 
-# instructions to run app 
+# instructions to run app
 # py -m venv env
 # env/Scripts/Activate
 # export FLASK_APP=app_interface.py
@@ -27,13 +28,17 @@ from analytic_functions import *
 # GLOBAL VARIABLES
 file_name =  'ks-projects-201801.json'
 data = list()
+
 updateNeeded_countWords = True
 count_dict = {}
+yearDict = dict()
+hasChanged = bool()
+
 
 def search_helper(key, method="GET", input_type=''):
     if method == 'POST': # will only run below code if client is posting
         value = request.form.get(key) # request.form looks at the html in current route
-        if not value or value.isspace(): # refresh page if search is blank 
+        if not value or value.isspace(): # refresh page if search is blank
             return redirect(request.url)
         return redirect(url_for('results', key=key, value=value)) # go to results function
     return render_template('search-input.html', type=input_type, name=key) # load page
@@ -44,7 +49,7 @@ app = Flask(__name__) # neccessary for flask
 def loadJsonFile():
     file = os.path.join(app.static_folder, file_name) # location of json file
     with open(file ,encoding='utf-8-sig') as json_file:
-        global data 
+        global data
         data = json.load(json_file) # json --> list of dictionaries
 
 @app.route("/") # creates "/" directory for homepage
@@ -84,7 +89,7 @@ def update_database():
         # necessary since we open the file with r+
         # if we dump a lesser amount of lines than the file originally had,
         # we end up with trailing garbage values; truncate() gets rid of that
-        json_file.truncate() 
+        json_file.truncate()
     return render_template('results.html', projects=[], message="Successfully updated database file")
 
 @app.route("/import_file", methods=['POST','GET'])
@@ -96,7 +101,7 @@ def import_file():
         file = request.files["passed_file"]
         if file: #and allowed_file(request.url)
             file_path = os.path.join(app.static_folder, file.filename)
-            file.save(file_path) 
+            file.save(file_path)
             with open(file_path, encoding='utf-8-sig') as json_file:
                 global data
                 data = json.load(json_file) # json --> list of dictionaries
@@ -134,6 +139,7 @@ def update_ks():
         if not choiceSearch or choiceSearch.isspace():
             return redirect(request.url)
         #return redirect(url_for('get_id', id=id))
+
     return render_template('updateDB-options.html')
 
 
@@ -158,7 +164,7 @@ def do_delete(id_to_delete):
 
         #global count_dict for incremental analyitics
         global count_dict
-        
+
         for i in data:
             if i['ID'] == id_to_delete:
                 located = True
@@ -173,7 +179,7 @@ def do_delete(id_to_delete):
             else:
                 pos += 1
         if located:
-            
+
 
 
             data.pop(pos)
@@ -188,10 +194,10 @@ def add_kickstarter():
     if request.method == 'POST': # will only run below code if client is posting
         ksToAdd = kickStarterForm(request.form.get('id'),request.form.get('name'),request.form.get('category'),request.form.get('main_category'),request.form.get('currency'),
         request.form.get('deadline'),request.form.get('goal'),request.form.get('date_launched'),request.form.get('time_launched'),request.form.get('number_pledged'),request.form.get('state'),
-        request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'), request.form.get('amount_usd_pledged_real'))      
+        request.form.get('number_backers'), request.form.get('country'), request.form.get('amount_usd_pledged'), request.form.get('amount_usd_pledged_real'))
         if not len(ksToAdd.error_msgs) == 0:
             return render_template('results.html', projects=[], message="Error on one or more fields")
-        
+
         add_to_json(data,ksToAdd.id,ksToAdd.name,ksToAdd.category,ksToAdd.main_category,ksToAdd.currency,ksToAdd.deadline,ksToAdd.goal,ksToAdd.date_launched,
             ksToAdd.number_pledged,ksToAdd.state,ksToAdd.number_backers,ksToAdd.country,ksToAdd.amount_usd_pledged,ksToAdd.amount_usd_pledged_real)
 
@@ -207,7 +213,7 @@ def add_kickstarter():
                             count_dict[i] = 1
         #incremental end ------------------
 
-        
+
         return render_template('results.html', message="Successfully added kickstarter "+ksToAdd.name)
     return render_template('addKickstarter.html')
 
@@ -267,19 +273,19 @@ def edit_project():
     &new_main_category=<new_main_category>&new_currency=<new_currency>&new_deadline=<new_deadline>
     &new_goal=<new_goal>&new_launched=<new_launched>&new_pledged=<new_pledged>&new_state=<new_state>
     &new_backers=<new_backers>&new_country=<new_country>''', methods=['POST','GET'])
-def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency, new_deadline, new_goal, 
+def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency, new_deadline, new_goal,
     new_launched, new_pledged, new_state, new_backers, new_country):
     #file = os.path.join(app.static_folder, file_name) # location of json file
     projectFound = False # the project being looked for
     #with open(file, 'r+', encoding='utf-8-sig') as json_file:
         #data = json.load(json_file) # json --> list of dictionaries
 
-   
-    
+
+
     for proj in data:
         if id == proj.get('ID'):
             projectFound = True
-            
+
             #incremental analytics -----------------
             #removes previous words from name
             if(proj['state'] == "successful"):
@@ -287,7 +293,7 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
                     for x in res:
                         if(len(x) >= 4):
                             count_dict[x] -= 1
-            
+
             #adds new words
             if(new_state == "successful"):
                 res = new_name.split()
@@ -301,7 +307,7 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
 
             # these if statements prevent flask errors when any new value is left blank
             if new_id != '\n':
-                proj['ID'] = new_id 
+                proj['ID'] = new_id
             if new_name != '\n':
                 proj['name'] = new_name
             if new_category != '\n':
@@ -327,7 +333,7 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
             break
     if not projectFound:
         return render_template('results.html', projects=[], message="Project not found")
-        
+    hasChanged = True
     return render_template('results.html', projects=[proj])
 
 
@@ -341,9 +347,9 @@ def category_fail():
     ])
 
     fig.update_layout( # change the bar mode
-        barmode='stack', title="Ratio of failed projects in each main category", xaxis_title="Main categories", 
+        barmode='stack', title="Ratio of failed projects in each main category", xaxis_title="Main categories",
         yaxis_title="Ratio of failed projects"
-    ) 
+    )
     fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
 
@@ -359,7 +365,7 @@ def make_length_analytic():
     ])
 
     fig.update_layout( # change the bar mode
-        barmode='stack', title="Average Expected Length of Kickstarter by Year", xaxis_title="Year", 
+        barmode='stack', title="Average Expected Length of Kickstarter by Year", xaxis_title="Year",
         yaxis_title="Average expected length(days)"
     )
     fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
@@ -369,7 +375,7 @@ def make_length_analytic():
 
 @app.route("/analytics_most_funded_category")
 def analytics_most_funded_category():
-    
+
     #contains the most pledged categories for years 2012-15
     list_of_categories = []
     list_of_years = ['2009','2010','2011','2012','2013','2014','2015','2016','2017','2018']
@@ -379,32 +385,37 @@ def analytics_most_funded_category():
     temp = []
     for str in list_of_years:
         temp = most_funded_category_per_year(str,data)
-        #print(*temp, sep = "\n") 
+        #print(*temp, sep = "\n")
         list_of_values.append(temp[0])
         list_of_categories.append(temp[1])
-        
-    
+
+
     for i in range(len(list_of_years)):
         list_of_years[i] = list_of_years[i] + " " + list_of_categories[i]
-    
-    
+
+
     fig = go.Figure(data=[
         go.Bar(x=list_of_years, y=list_of_values) # create the bar chart
     ])
-    
+
     fig.update_layout( # change the bar mode
-        title="Most Funded Category for each year", xaxis_title="Year", 
+        title="Most Funded Category for each year", xaxis_title="Year",
         yaxis_title="Total Amount Pledged in Most Funded Category"
     )
 
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
 
-    
+
     return render_template('analytics.html', graphJSON=graphJSON)
 
 @app.route("/analytics_popmonth")
 def popularMonth():
-    year_dict = countProjects(data)
+    start = time.time() #used to keep track of time.
+    year_dict = yearDict
+    dictLen = len(year_dict)
+    if(dictLen == 0): #checks if data has already been added.
+        year_dict = countProjects(data) #if it hasn't then begins to populate the dictionary
+
     monthList = ['Jan', 'Feb', 'Mar', 'Apr', 'May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
     # Create the graph
     fig = go.Figure(
@@ -496,11 +507,14 @@ def popularMonth():
     )
     # Change the title and axis labels
     fig.update_layout(
-        title="Kickstarters launched across all years", xaxis_title="Month", 
+        title="Kickstarters launched across all years", xaxis_title="Month",
         yaxis_title="Number of projects launched"
-    ) 
+    )
     # Export graph to analytics.html
+
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    end = time.time()
+    print(end - start)
     return render_template('analytics.html', graphJSON=graphJSON)
 
 @app.route("/analytics_popcat")
@@ -534,14 +548,14 @@ def category_per_month(): # most popular category per month
             go.Bar(name='August', x=categories, y=final_Dict['08']),
             go.Bar(name='September', x=categories, y=final_Dict['09']),
             go.Bar(name='October', x=categories, y=final_Dict['10']),
-            go.Bar(name='November', x=categories, y=final_Dict['11']), 
+            go.Bar(name='November', x=categories, y=final_Dict['11']),
             go.Bar(name='December', x=categories, y=final_Dict['12'])])
 
 
     fig.update_layout( # change the bar mode
-        barmode='group', title="Most popular Category per Month", xaxis_title="Main categories", 
+        barmode='group', title="Most popular Category per Month", xaxis_title="Main categories",
         yaxis_title="Project Count"
-    ) 
+    )
     fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
 
@@ -623,7 +637,7 @@ def ambitiousProjects():
             )
         ]
     )
-    
+
     # Finally, export the graph
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('analytics.html', graphJSON=graphJSON)
@@ -632,15 +646,15 @@ def ambitiousProjects():
 
 @app.route("/analytics_popnation")
 def popular_category_perNation():
-    
-            
+
+
     #this variable holds the dictionary that has each country as a key and occurence of each main_category
-    countryDict = get_countrys_category(data)    
+    countryDict = get_countrys_category(data)
 
     categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
         'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
-        'Dance'] 
-        
+        'Dance']
+
     catList = []
     finalListCountry = []
     finalListCat = []
@@ -648,14 +662,14 @@ def popular_category_perNation():
     #used to separate dictionary info into individual lists
     for i in countryDict:
         catList = countryDict[i]
-        max_Ind = catList.index(max(catList)) 
+        max_Ind = catList.index(max(catList))
         finalListCountry.append(i)
         finalListCount.append(catList[max_Ind])
         finalListCat.append(categories[max_Ind])
 
     keysList = list(countryDict.keys())
 
-    
+
     print(countryDict[keysList[0]])
     fig = go.Figure(
         data =[go.Bar(name=keysList[0], x=categories, y=countryDict[keysList[0]]),
@@ -668,10 +682,10 @@ def popular_category_perNation():
             go.Bar(name= keysList[7], x=categories, y=countryDict[keysList[7]]),
             go.Bar(name= keysList[8], x=categories, y=countryDict[keysList[8]]),
             go.Bar(name= keysList[9], x=categories, y=countryDict[keysList[9]]),
-            go.Bar(name= keysList[10], x=categories, y=countryDict[keysList[10]]), 
-            go.Bar(name= keysList[11], x=categories, y=countryDict[keysList[11]]), 
-            go.Bar(name= keysList[12], x=categories, y=countryDict[keysList[12]]), 
-            go.Bar(name= keysList[13], x=categories, y=countryDict[keysList[13]]), 
+            go.Bar(name= keysList[10], x=categories, y=countryDict[keysList[10]]),
+            go.Bar(name= keysList[11], x=categories, y=countryDict[keysList[11]]),
+            go.Bar(name= keysList[12], x=categories, y=countryDict[keysList[12]]),
+            go.Bar(name= keysList[13], x=categories, y=countryDict[keysList[13]]),
             go.Bar(name= keysList[14], x=categories, y=countryDict[keysList[14]]),
             go.Bar(name=keysList[15], x=categories, y=countryDict[keysList[15]]),
             go.Bar(name=keysList[16], x=categories, y=countryDict[keysList[16]]),
@@ -685,9 +699,9 @@ def popular_category_perNation():
 
 
     fig.update_layout( # change the bar mode
-        barmode='group', title="Most Popular Category in Each Country", xaxis_title="Countries", 
+        barmode='group', title="Most Popular Category in Each Country", xaxis_title="Countries",
         yaxis_title="Project Count"
-    ) 
+    )
     fig.update_xaxes(categoryorder='total ascending') # sort x-axis in ascending order
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
     return render_template('analytics.html', graphJSON=graphJSON)
@@ -706,26 +720,26 @@ def most_successful_words():
     graphJSON = ""
     if(updateNeeded_countWords == True):
         count_dict = count_words(data)
-        
+
         new_dict = dict(Counter(count_dict).most_common(10))
 
         for key, value in new_dict.items():
             list_of_words.append(key)
             list_of_count.append(value)
-        
+
 
         fig = go.Figure(data=[
             go.Bar(x=list_of_words, y=list_of_count) # create the bar chart
         ])
-        
+
         fig.update_layout( # change the bar mode
-            title="Most frequent words in successful projects", xaxis_title="Words", 
+            title="Most frequent words in successful projects", xaxis_title="Words",
             yaxis_title="Count"
         )
         updateNeeded_countWords = False
         graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
     else:
-        
+
         new_dict = dict(Counter(count_dict).most_common(10))
 
         for key, value in new_dict.items():
@@ -735,13 +749,13 @@ def most_successful_words():
         fig = go.Figure(data=[
             go.Bar(x=list_of_words, y=list_of_count) # create the bar chart
         ])
-        
+
         fig.update_layout( # change the bar mode
-            title="Most frequent words in successful projects", xaxis_title="Words", 
+            title="Most frequent words in successful projects", xaxis_title="Words",
             yaxis_title="Count"
         )
         updateNeeded_countWords = False
         graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
-    
+
     print("--- %s seconds ---" % (time.time() - start_time))
     return render_template('analytics.html', graphJSON=graphJSON)
