@@ -225,8 +225,6 @@ def gatherYears(dataFile):
 
 ##Successful words analytics
 def count_words(data):
-    list_of_words = []
-    list_of_count = []
 
     count_dict = {}
     
@@ -241,13 +239,8 @@ def count_words(data):
                         else:
                             count_dict[i] = 1
     
-    new_dict = dict(Counter(count_dict).most_common(10))
 
-    for key, value in new_dict.items():
-        list_of_words.append(key)
-        list_of_count.append(value)
-
-    return list_of_words,list_of_count
+    return count_dict
 
 
 def count_categories_per_month(data):

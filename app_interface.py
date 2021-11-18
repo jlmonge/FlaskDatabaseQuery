@@ -1,6 +1,7 @@
 import os
 import json
 import io
+import time
 from typing import final
 from flask import Flask, render_template, request, redirect, url_for, flash
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
@@ -26,6 +27,8 @@ from analytic_functions import *
 # GLOBAL VARIABLES
 file_name =  'ks-projects-201801.json'
 data = list()
+updateNeeded_countWords = True
+count_dict = {}
 
 def search_helper(key, method="GET", input_type=''):
     if method == 'POST': # will only run below code if client is posting
@@ -152,13 +155,27 @@ def do_delete(id_to_delete):
         pos = 0
         #data = json.load(file) # json --> list of dictionaries
         #data = json.load(file)
+
+        #global count_dict for incremental analyitics
+        global count_dict
+        
         for i in data:
             if i['ID'] == id_to_delete:
                 located = True
+                #for incremental analytics count words
+                if(i['state'] == "successful"):
+                    res = i['name'].split()
+                    for x in res:
+                        if(len(x) >= 4):
+                            count_dict[x] -= 1
+                #incremental analytics end ------
                 break
             else:
                 pos += 1
         if located:
+            
+
+
             data.pop(pos)
             successMessage = "Project %s was deleted successfully."%id_to_delete
             return render_template('results.html', projects=[], message=successMessage)
@@ -177,6 +194,20 @@ def add_kickstarter():
         
         add_to_json(data,ksToAdd.id,ksToAdd.name,ksToAdd.category,ksToAdd.main_category,ksToAdd.currency,ksToAdd.deadline,ksToAdd.goal,ksToAdd.date_launched,
             ksToAdd.number_pledged,ksToAdd.state,ksToAdd.number_backers,ksToAdd.country,ksToAdd.amount_usd_pledged,ksToAdd.amount_usd_pledged_real)
+
+        #incremental anayltics-------------
+        global count_dict
+        if(ksToAdd.state == "successful"):
+                res = ksToAdd.name.split()
+                for i in res:
+                    if(len(i) >= 4):
+                        if i in count_dict:
+                            count_dict[i] += 1
+                        else:
+                            count_dict[i] = 1
+        #incremental end ------------------
+
+        
         return render_template('results.html', message="Successfully added kickstarter "+ksToAdd.name)
     return render_template('addKickstarter.html')
 
@@ -242,9 +273,32 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
     projectFound = False # the project being looked for
     #with open(file, 'r+', encoding='utf-8-sig') as json_file:
         #data = json.load(json_file) # json --> list of dictionaries
+
+   
+    
     for proj in data:
         if id == proj.get('ID'):
             projectFound = True
+            
+            #incremental analytics -----------------
+            #removes previous words from name
+            if(proj['state'] == "successful"):
+                    res = proj['name'].split()
+                    for x in res:
+                        if(len(x) >= 4):
+                            count_dict[x] -= 1
+            
+            #adds new words
+            if(new_state == "successful"):
+                res = new_name.split()
+                for i in res:
+                    if(len(i) >= 4):
+                        if i in count_dict:
+                            count_dict[i] += 1
+                        else:
+                            count_dict[i] = 1
+            #incremental analytics end --------------
+
             # these if statements prevent flask errors when any new value is left blank
             if new_id != '\n':
                 proj['ID'] = new_id 
@@ -640,18 +694,54 @@ def popular_category_perNation():
 
 @app.route("/success_words")
 def most_successful_words():
+    start_time = time.time()
+    global updateNeeded_countWords
+    global count_dict
+
+    list_of_words = []
+    list_of_count = []
+
+
+
+    graphJSON = ""
+    if(updateNeeded_countWords == True):
+        count_dict = count_words(data)
+        
+        new_dict = dict(Counter(count_dict).most_common(10))
+
+        for key, value in new_dict.items():
+            list_of_words.append(key)
+            list_of_count.append(value)
+        
+
+        fig = go.Figure(data=[
+            go.Bar(x=list_of_words, y=list_of_count) # create the bar chart
+        ])
+        
+        fig.update_layout( # change the bar mode
+            title="Most frequent words in successful projects", xaxis_title="Words", 
+            yaxis_title="Count"
+        )
+        updateNeeded_countWords = False
+        graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
+    else:
+        
+        new_dict = dict(Counter(count_dict).most_common(10))
+
+        for key, value in new_dict.items():
+            list_of_words.append(key)
+            list_of_count.append(value)
+
+        fig = go.Figure(data=[
+            go.Bar(x=list_of_words, y=list_of_count) # create the bar chart
+        ])
+        
+        fig.update_layout( # change the bar mode
+            title="Most frequent words in successful projects", xaxis_title="Words", 
+            yaxis_title="Count"
+        )
+        updateNeeded_countWords = False
+        graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
     
-    list_of_words, list_of_count = count_words(data)
-
-    fig = go.Figure(data=[
-        go.Bar(x=list_of_words, y=list_of_count) # create the bar chart
-    ])
-    
-    fig.update_layout( # change the bar mode
-        title="Most frequent words in successful projects", xaxis_title="Words", 
-        yaxis_title="Count"
-    )
-
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder) # send json of graph to analytics.html
-
+    print("--- %s seconds ---" % (time.time() - start_time))
     return render_template('analytics.html', graphJSON=graphJSON)
