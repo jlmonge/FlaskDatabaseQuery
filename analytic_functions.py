@@ -266,8 +266,9 @@ def count_categories_per_month(data):
             continue
         projMonth = projDate[5:7] # substring of the month 
         projCat = proj['main_category']
-        catIndex = categories.index(projCat)
-        month_dict[projMonth][catIndex] += 1 #increment up that category 
+        if projCat in categories:
+            catIndex = categories.index(projCat)
+            month_dict[projMonth][catIndex] += 1 #increment up that category 
     return month_dict
 
 

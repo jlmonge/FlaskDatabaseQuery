@@ -32,7 +32,7 @@ data = list()
 updateNeeded_countWords = True
 count_dict = {}
 yearDict = dict()
-hasChanged = bool()
+updateNeeded_countProjects = True
 
 
 def search_helper(key, method="GET", input_type=''):
@@ -94,6 +94,8 @@ def update_database():
 
 @app.route("/import_file", methods=['POST','GET'])
 def import_file():
+    global updateNeeded_countWords
+    global updateNeeded_countProjects
     if request.method == 'POST':
         if 'passed_file' not in request.files:
             print('No file part')
@@ -107,6 +109,8 @@ def import_file():
                 data = json.load(json_file) # json --> list of dictionaries
             global file_name
             file_name = file.filename
+            updateNeeded_countProjects = True
+            updateNeeded_countWords = True
             return redirect(request.url)
     return render_template("import_file.html")
 
@@ -164,6 +168,7 @@ def do_delete(id_to_delete):
 
         #global count_dict for incremental analyitics
         global count_dict
+        global yearDict
 
         for i in data:
             if i['ID'] == id_to_delete:
@@ -175,6 +180,15 @@ def do_delete(id_to_delete):
                         if(len(x) >= 4):
                             count_dict[x] -= 1
                 #incremental analytics end ------
+                #for incremental analytics count projects
+                
+                launchVals = i["launched"].split('-')
+                if launchVals[0] in yearDict.keys():
+                    yearDict[launchVals[0]][(int(launchVals[1]) - 1)] -= 1
+
+                #incremental analytics end ------
+
+
                 break
             else:
                 pos += 1
@@ -211,6 +225,12 @@ def add_kickstarter():
                             count_dict[i] += 1
                         else:
                             count_dict[i] = 1
+
+        global yearDict
+        launchVals = ksToAdd.date_launched.split('-')
+        if launchVals[0] in yearDict.keys():
+            yearDict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
+            
         #incremental end ------------------
 
 
@@ -280,6 +300,9 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
     #with open(file, 'r+', encoding='utf-8-sig') as json_file:
         #data = json.load(json_file) # json --> list of dictionaries
 
+    #incremental analytics
+    global count_dict
+    global yearDict
 
 
     for proj in data:
@@ -303,6 +326,17 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
                             count_dict[i] += 1
                         else:
                             count_dict[i] = 1
+
+            #removes previous count of projects
+            launchVals = proj["launched"].split('-')
+            if launchVals[0] in yearDict.keys():
+                yearDict[launchVals[0]][(int(launchVals[1]) - 1)] -= 1
+            
+
+            launchVals = new_launched.split('-')
+            if launchVals[0] in yearDict.keys():
+                yearDict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
+
             #incremental analytics end --------------
 
             # these if statements prevent flask errors when any new value is left blank
@@ -410,11 +444,15 @@ def analytics_most_funded_category():
 
 @app.route("/analytics_popmonth")
 def popularMonth():
+    global yearDict
+    global updateNeeded_countProjects
+
     start = time.time() #used to keep track of time.
     year_dict = yearDict
-    dictLen = len(year_dict)
-    if(dictLen == 0): #checks if data has already been added.
+    if(updateNeeded_countProjects): #checks if data has already been added.
         year_dict = countProjects(data) #if it hasn't then begins to populate the dictionary
+        yearDict = year_dict
+        updateNeeded_countProjects = False 
 
     monthList = ['Jan', 'Feb', 'Mar', 'Apr', 'May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
     # Create the graph
