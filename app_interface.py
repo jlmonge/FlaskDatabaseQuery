@@ -25,13 +25,14 @@ from analytic_functions import *
 # flask run
 
 # dummy_file.json
+
 # GLOBAL VARIABLES
 file_name =  'ks-projects-201801.json'
 data = list()
 
 updateNeeded_countWords = True
 count_dict = {}
-yearDict = dict()
+popularMonth_projDict = dict()
 updateNeeded_countProjects = True
 
 
@@ -217,6 +218,7 @@ def add_kickstarter():
 
         #incremental anayltics-------------
         global count_dict
+        global updateNeeded_countProjects
         if(ksToAdd.state == "successful"):
                 res = ksToAdd.name.split()
                 for i in res:
@@ -230,7 +232,8 @@ def add_kickstarter():
         launchVals = ksToAdd.date_launched.split('-')
         if launchVals[0] in yearDict.keys():
             yearDict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
-            
+        
+        updateNeeded_countProjects = True
         #incremental end ------------------
 
 
@@ -444,115 +447,54 @@ def analytics_most_funded_category():
 
 @app.route("/analytics_popmonth")
 def popularMonth():
-    global yearDict
+    # Import global variables
+    global popularMonth_projDict
     global updateNeeded_countProjects
 
-    start = time.time() #used to keep track of time.
-    year_dict = yearDict
-    if(updateNeeded_countProjects): #checks if data has already been added.
-        year_dict = countProjects(data) #if it hasn't then begins to populate the dictionary
-        yearDict = year_dict
-        updateNeeded_countProjects = False 
+    # Incremental: Begin start time and check if data needs updating
+    start = time.time()
 
+    if(updateNeeded_countProjects): # if data has been changed, renew dictionary
+        projDict = countProjects(data)
+        popularMonth_projDict = projDict
+        updateNeeded_countProjects = False 
+    else: # if data has stayed constant, use existing dictionary
+        projDict = popularMonth_projDict
+
+    # Initialize variables
     monthList = ['Jan', 'Feb', 'Mar', 'Apr', 'May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    yearList = projDict.keys()
+    titleList = []
+    barCount = 0
+
     # Create the graph
-    fig = go.Figure(
-        data=[go.Bar(name='2009', x=monthList, y=year_dict['2009']),
-            go.Bar(name='2010', x=monthList, y=year_dict['2010']),
-            go.Bar(name='2011', x=monthList, y=year_dict['2011']),
-            go.Bar(name='2012', x=monthList, y=year_dict['2012']),
-            go.Bar(name='2013', x=monthList, y=year_dict['2013']),
-            go.Bar(name='2014', x=monthList, y=year_dict['2014']),
-            go.Bar(name='2015', x=monthList, y=year_dict['2015']),
-            go.Bar(name='2016', x=monthList, y=year_dict['2016']),
-            go.Bar(name='2017', x=monthList, y=year_dict['2017']),
-            go.Bar(name='2018', x=monthList, y=year_dict['2018'])])
-    # Create the dropdown menu (Yes, you read that right. This massive chonker for one dropdown menu.)
+    fig = go.Figure()
     fig.update_layout(
-        updatemenus=[
-            dict(
-                active=0,
-                buttons=list([
-                    dict(
-                        label="All",
-                        method="update",
-                        args=[{"visible": [True,True,True,True,True,True,True,True,True,True]},
-                        {"title": "Kickstarters launched across all years"}]
-                    ),
-                    dict(
-                        label="2009",
-                        method="update",
-                        args=[{"visible": [True,False,False,False,False,False,False,False,False,False]},
-                        {"title": "Kickstarters launched in 2009"}]
-                    ),
-                    dict(
-                        label="2010",
-                        method="update",
-                        args=[{"visible": [False,True,False,False,False,False,False,False,False,False]},
-                        {"title": "Kickstarters launched in 2010"}]
-                    ),
-                    dict(
-                        label="2011",
-                        method="update",
-                        args=[{"visible": [False,False,True,False,False,False,False,False,False,False]},
-                        {"title": "Kickstarters launched in 2011"}]
-                    ),
-                    dict(
-                        label="2012",
-                        method="update",
-                        args=[{"visible": [False,False,False,True,False,False,False,False,False,False]},
-                        {"title": "Kickstarters launched in 2012"}]
-                    ),
-                    dict(
-                        label="2013",
-                        method="update",
-                        args=[{"visible": [False,False,False,False,True,False,False,False,False,False]},
-                        {"title": "Kickstarters launched in 2013"}]
-                    ),
-                    dict(
-                        label="2014",
-                        method="update",
-                        args=[{"visible": [False,False,False,False,False,True,False,False,False,False]},
-                        {"title": "Kickstarters launched in 2014"}]
-                    ),
-                    dict(
-                        label="2015",
-                        method="update",
-                        args=[{"visible": [False,False,False,False,False,False,True,False,False,False]},
-                        {"title": "Kickstarters launched in 2015"}]
-                    ),
-                    dict(
-                        label="2016",
-                        method="update",
-                        args=[{"visible": [False,False,False,False,False,False,False,True,False,False]},
-                        {"title": "Kickstarters launched in 2016"}]
-                    ),
-                    dict(
-                        label="2017",
-                        method="update",
-                        args=[{"visible": [False,False,False,False,False,False,False,False,True,False]},
-                        {"title": "Kickstarters launched in 2017"}]
-                    ),
-                    dict(
-                        label="2018",
-                        method="update",
-                        args=[{"visible": [False,False,False,False,False,False,False,False,False,True]},
-                        {"title": "Kickstarters launched in 2018"}]
-                    ),
-                ])
-            ),
-        ]
-    )
-    # Change the title and axis labels
-    fig.update_layout(
-        title="Kickstarters launched across all years", xaxis_title="Month",
+        title="Kickstarters launched across all years",
+        xaxis_title="Month",
         yaxis_title="Number of projects launched"
     )
-    # Export graph to analytics.html
 
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    # Data collection
+    for year in yearList:
+        fig.add_trace(go.Bar(
+            x=monthList,
+            y=projDict[year],
+            name="Number of Projects"
+        ))
+        barCount += 1
+        titleList.append("Kickstarters launched in " + year)
+
+    # Add dropdown menu
+    finishedFigure = createDropdown(fig,barCount,yearList,titleList,1)
+
+    # Prepare to export graph
+    graphJSON = json.dumps(finishedFigure, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # Incremental: Stop timer and print result
     end = time.time()
     print(end - start)
+
     return render_template('analytics.html', graphJSON=graphJSON)
 
 @app.route("/analytics_popcat")
@@ -600,15 +542,15 @@ def category_per_month(): # most popular category per month
     return render_template('analytics.html', graphJSON=graphJSON)
 
 @app.route("/analytics_ambitious")
-# I did some peculiar things with this function, but it allows for us to run this same analytic on any size of data (ex. completed 2018, 2019, 2020 data is added)
-# I'll add some documentation for anyone who wants to look through it.
 def ambitiousProjects():
-    # Variable initialization
-    monthList = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] # All months
-    yearList = gatherYears(data) # All years in the data set
-    projectDict = findAmbitious(data) # All ambitious projects in the data set
-    tabList = [] # All tabs to be supported by the graph
-    visList = [] # Visible statuses, needed for tabs
+    # Initialize variables
+    monthList = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    yearList = gatherYears(data)
+    projectDict = findAmbitious(data)
+    titleList = []
+    barCount = 0
+
+    # Create the graph
     fig = go.Figure() # Make the figure and add basic details
     fig.update_layout(
         title="Most Ambitious Projects",
@@ -616,7 +558,7 @@ def ambitiousProjects():
         yaxis_title="US $"
     )
 
-    # Data collection and formatting
+    # Data collection
     for year in yearList: # For every year,
         IDList = [] # Collect the ID's,
         goalList = [] # goals,
@@ -642,45 +584,14 @@ def ambitiousProjects():
             name='Pledges',
             hovertext=IDList
         ))
-        tabTitle = "Most Ambitious Projects for " + year
-        tabList.append( # and add a new dictionary so this year can be isolated on the graph
-            dict(
-                label=year,
-                method="update",
-                args=[{"visible": []}, # This blank list will be filled later
-                {"title": tabTitle}]
-            )
-        )
-        visList.append(False) # and add two booleans to the visList, one for each new bar
-        visList.append(False)
+        barCount += 2
+        titleList.append("Most Ambitious Projects for " + year)
 
-    # Graph formatting
-    visIndex = 0 # Starting at index 0
-    for item in tabList: # For every tab to be made,
-        copyVis = visList.copy() # Create a copy of our visList
-        try:
-            copyVis[visIndex] = True # and allow only the two necessary bars to be seen
-            copyVis[(visIndex + 1)] = True
-        except:
-            print('An error occurred! Graph may not display correctly!') # If something bad happens, don't crash
-        finally:
-            item['args'][0]['visible'] = copyVis # Update this bar's visible arguments to the proper values instead of a blank list
-            visIndex += 2 # Increment visIndex by 2 for the next loop
-
-    fig.update_layout(
-        updatemenus=[
-            dict(
-                active=0,
-                buttons=tabList
-            )
-        ]
-    )
+    finishedFigure = createDropdown(fig,barCount,yearList,titleList,2)
 
     # Finally, export the graph
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    graphJSON = json.dumps(finishedFigure, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('analytics.html', graphJSON=graphJSON)
-
-
 
 @app.route("/analytics_popnation")
 def popular_category_perNation():
