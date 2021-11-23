@@ -3,6 +3,13 @@
 from datetime import date
 from decimal import Decimal
 
+# ----- check_float() -----
+# Helper function for analytics, used for input validation.
+# Passes in the value to be tested.
+# Makes no external function calls.
+# Checks the value can be expressed as a floating point number.
+# Returns TRUE if valid, FALSE if invalid.
+# -------------
 def check_float(potential_float): 
     try:
         float(potential_float)
@@ -10,9 +17,17 @@ def check_float(potential_float):
 
     except ValueError:
         return False
+# --------------------------
 
-#input a year and python dict
-#output returns a list with first value of the most funded category of the year and second value as the category that was most funded
+
+
+# ----- most_funded_category_per_year() -----
+# Helper function for analytics, namely... well, analytics_most_funded_category()
+# Passes in the year to test for, and the datafile to be read.
+# Makes no external function calls.
+# Reads each entry, finds the pledged value, and increments it to the corresponding category if the year is correct.
+# Returns a list containing the category with the highest amount pledged for the requested year, and that amount.
+# ---------------------
 def most_funded_category_per_year(year , file_data):
     category_dict = { # key=main category, value= total amount pledged for the year
         'Games':0, 'Design': 0, 'Technology': 0, 'Film & Video': 0, 'Music': 0, 
@@ -38,10 +53,21 @@ def most_funded_category_per_year(year , file_data):
     result.append(max_key)
 
     return result
+# -------------------------------------------
 
 
 
-
+# ----- bad_date() -----
+# Helper function for analytics, used for input validation.
+# Passes in the date to be read, expected to be in the format "yyyy-mm-dd hh:mm:ss", or at least "yyyy-mm-dd"
+# Makes no external function calls.
+# Reads the date and checks it against various criteria:
+# - A project could not be launched before 2008, when Kickstarter was created.
+# - A project should not be made after the year 3000, when humans have learned ascension, computers have become obsolete, and the Earth has been reclaimed by nature.
+# - A project's month should not be less than 1, for January, or greater than 12, for December.
+# - A project's day should not be less than 1 or greater than 31, because those days do not exist.
+# Returns a boolean of TRUE indicating invalid date, or FALSE if correct.
+# -----------
 def bad_date(date):
 
     if(len(date) < 10):
@@ -60,8 +86,17 @@ def bad_date(date):
     if dayNum < 1 or dayNum > 31:
         return True
     return False
+# -----------------------
 
 
+
+# ----- average_length_ks() -----
+# Helper function for analytics, namely make_length_analytic()
+# Passes in the datafile to be read.
+# Calls on bad_date() for input validation.
+# Reads each entry, collects the start and end date, adds the difference to the entry's year.
+# Returns the completed list of years, list of average kickstarter lengths for those years, and the total average across all years.
+# ---------------
 def average_length_ks(pyfile):
     labels = list() #labels for each datapoint
     returnData = list() #datapoints(average length per year)
@@ -69,34 +104,37 @@ def average_length_ks(pyfile):
     totalDates = 0
     dataByMonth = list() #
     #listValues = ["year",0.0,0]#"year or total", sum of lengths, number of values
-    for i in pyfile:
-        if bad_date(i["launched"]) or bad_date(i["deadline"]):#if the lanch or deadline date return true then they are bad dates and we ignore the input
+    for i in pyfile: # For every entry,
+        if bad_date(i["launched"]) or bad_date(i["deadline"]): # Check if dates are valid,
             continue
-        startDate = date(int(i["launched"][0:4]),int(i["launched"][5:7]),int(i["launched"][8:10]))
-        endDate = date(int(i["deadline"][0:4]),int(i["deadline"][5:7]),int(i["deadline"][8:10]))
+        startDate = date(int(i["launched"][0:4]),int(i["launched"][5:7]),int(i["launched"][8:10])) # Gather the starting time
+        endDate = date(int(i["deadline"][0:4]),int(i["deadline"][5:7]),int(i["deadline"][8:10])) # and the ending time,
         
-        timeBetween = endDate - startDate 
+        timeBetween = endDate - startDate # Find the difference,
         
         yearNotInList = True
-        for val in range(len(dataByMonth)):
-            if dataByMonth[val][0] == i["launched"][0:4]:
+        for val in range(len(dataByMonth)): # Then for all currently collected data,
+            if dataByMonth[val][0] == i["launched"][0:4]: # Find the year,
                 yearNotInList = False
-                dataByMonth[val][1] = dataByMonth[val][1] + timeBetween.days
-                dataByMonth[val][2] = dataByMonth[val][2] + 1
+                dataByMonth[val][1] = dataByMonth[val][1] + timeBetween.days # add this entry's time to the year's total,
+                dataByMonth[val][2] = dataByMonth[val][2] + 1 # and increment the project count.
         if yearNotInList:
-            dataByMonth.append([i["launched"][0:4],timeBetween.days,1])
+            dataByMonth.append([i["launched"][0:4],timeBetween.days,1]) # If year is missing, these are the first values for it.
     
     #sort by year
 
-    for iteration in dataByMonth:
-        labels.append(iteration[0])
-        returnData.append(iteration[1]/iteration[2])
-        totalDates = iteration[2] + totalDates
+    for iteration in dataByMonth: # For every year in the collected data,
+        labels.append(iteration[0]) # Add the year to labels list,
+        returnData.append(iteration[1]/iteration[2]) # Add that year's (total length / total projects) average to returnData,
+        totalDates = iteration[2] + totalDates # and calculate the totals.
         totalAverage = iteration[1] + totalAverage
     totalAverage = totalAverage/totalDates
 
-
+    # Finally, return everything.
     return labels, returnData, totalAverage
+# --------------------------------
+
+
 
 # ----- countProjects() -----
 # Helper function for analytics, namely popularMonth().
@@ -122,6 +160,15 @@ def countProjects(dataFile):
     return retDict
 # ----------------------------
 
+
+
+# ----- count_cat_fail_success() -----
+# Helper function for analytics, namely category_fail()
+# Passes in the data file to be read.
+# Makes no external function calls.
+# Reads each entry and increments the fail or success value for its category, depending on its state.
+# Returns the list of category titles, and the completed list of ratios for those categories
+# -----------------
 def count_cat_fail_success(data):
     category_dict = { # key=main category, value=#successful[0],#failed[1]
         'Games':[0,0], 'Design':[0,0], 'Technology':[0,0], 'Film & Video':[0,0], 'Music':[0,0], 
@@ -140,6 +187,9 @@ def count_cat_fail_success(data):
     category_failed_ratio = [x[1] / (x[0] + x[1]) if x[0] or x[1] else 0 for x \
         in list(category_dict.values())] # list comprehension
     return category_names, category_failed_ratio
+# -------------------------------------
+
+
 
 # ----- findAmbitious() -----
 # Helper function for analytics, namely ambitiousProjects()
@@ -169,6 +219,8 @@ def findAmbitious(dataFile):
     return sortDict
 # ---------------------------
 
+
+
 # ----- gatherYears() -----
 # Helper function for analytics, namely ambitiousProjects() and countProjects().
 # Passes in the data file to be read.
@@ -187,9 +239,12 @@ def gatherYears(dataFile):
     return retList
 # -------------------------
 
+
+
 # ----- createDropdown() -----
 # Helper function for analytics, namely ambitiousProjects() and countProjects().
 # Passes in the figure to edit, the number of bars, the keys for the bar data, the list of tab titles, and the number of bars to be seen on each tab.
+# Makes no external function calls.
 # Creates a dropdown menu with the desired characteristics, and applies it to the figure.
 # Returns the edited figure.
 # ----------------------------
