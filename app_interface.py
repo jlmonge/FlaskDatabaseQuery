@@ -556,6 +556,7 @@ def popularMonth():
     return render_template('analytics.html', graphJSON=graphJSON)
 
 @app.route("/analytics_popcat")
+#for refactoring: Removed Dispensables from code ie: Unneccesary variables and print statements
 def category_per_month(): # most popular category per month
 
     #used to keep track of the count of all the main categories
@@ -565,6 +566,7 @@ def category_per_month(): # most popular category per month
     final_Dict = count_categories_per_month(data)
     finalListCat = []
     finalListCount = []
+   
     #listMonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     for key in final_Dict.keys():
         monthList = final_Dict[key]
@@ -573,8 +575,7 @@ def category_per_month(): # most popular category per month
         finalListCat.append(cat)
         finalListCount.append(monthList[max_Ind])
 
-    print(finalListCat)
-    print(len(finalListCount))
+    # Portion that creates the graph and then returns it.
     fig = go.Figure(
         data =[go.Bar(name='January', x=categories, y=final_Dict['01']),
             go.Bar(name='February', x=categories, y=final_Dict['02']),
