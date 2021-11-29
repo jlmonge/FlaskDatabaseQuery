@@ -2,7 +2,7 @@
 
 from collections import Counter
 from datetime import date
-from decimal import Decimal
+from decimal import Decimal, DecimalException
 
 def check_float(potential_float): 
     try:
@@ -188,7 +188,16 @@ def findAmbitious(dataFile):
     for item in dataFile:
         if (bad_date(item['launched']) == False): # 2012-03-17 03:24:11
             date = item['launched'][0:7] # 2012-03
+            
+            try:
+                int(item['ID'])
+                Decimal(item['goal'])
+                Decimal(item['pledged'])
+            except (ValueError, DecimalException):
+                continue
+            
             itemVals = [int(item['ID']),int(Decimal(item['goal'])),int(Decimal(item['pledged']))]
+
             try:
                 compVals = retDict.get(date)
                 # if goal is higher, or goal is equal and pledged is higher
@@ -287,6 +296,8 @@ def get_countrys_category(data):
     for proj in data:
         projCountry = proj['country']
         projCat = proj['main_category']
+        if projCat not in categories:
+            continue
         catIndex = categories.index(projCat)
         if projCountry in analyticDict.keys(): # no need to create new entry in the dictionary
             analyticDict[projCountry][catIndex] += 1
