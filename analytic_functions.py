@@ -246,7 +246,7 @@ def count_words(data):
 def count_categories_per_month(data):
     
 
-    #Refactoring: moved this if check up, no need to create a dictionary if the file is empty
+    #Refactoring: moved this if statement to the beginning, no need to create a dictionary if the file is empty
     if len(data) == 0 or not data[0]:#quick check to see if pyfile is either empty or has an empty dictionary inside
         print("empty file passed into analytic") 
         return [{}]
