@@ -566,7 +566,7 @@ def category_per_month(): # most popular category per month
     final_Dict = count_categories_per_month(data)
     finalListCat = []
     finalListCount = []
-    finalList = []
+   
     #listMonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     for key in final_Dict.keys():
         monthList = final_Dict[key]
