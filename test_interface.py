@@ -244,9 +244,9 @@ class count_words_test():
     def single_ks(self):#tests list with a single value
         mockData = [ {"name": "Egidio Scognamillo: Realize a dream to change a life life life dream", "state": "successful"} ]
         labels = count_words(mockData)
-        assert (labels[0][0] == "life"),"With one ks pass back life because it occurs 3 times"
-        assert (labels[0][1] == "dream"),"With one ks pass back life because it occurs 2 times"
-        assert (labels[1][0] == 3), "With one ks, life occurs 3 times"
+        assert ("life" in labels.keys()),"With one ks pass back life because it occurs 3 times"
+        assert ("dream" in labels.keys()),"With one ks pass back life because it occurs 2 times"
+        assert (labels["life"] == 3), "With one ks, life occurs 3 times"
         assert (labels[1][1] == 2), "With one ks, dream occurs 2 times"
 
     def single_ks_fail(self):#tests list with a single value
