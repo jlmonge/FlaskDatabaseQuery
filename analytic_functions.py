@@ -244,8 +244,14 @@ def count_words(data):
 
 
 def count_categories_per_month(data):
-    #dictionary for the months as keys and categories as values
+    
 
+    #Refactoring: moved this if check up, no need to create a dictionary if the file is empty
+    if len(data) == 0 or not data[0]:#quick check to see if pyfile is either empty or has an empty dictionary inside
+        print("empty file passed into analytic") 
+        return [{}]
+
+    #dictionary for the months as keys and categories as values
     month_dict = {'01':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '02':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         '03':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '04':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '05':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         '06':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '07':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '08':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -256,9 +262,7 @@ def count_categories_per_month(data):
         'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
         'Dance']
 
-    if len(data) == 0 or not data[0]:#quick check to see if pyfile is either empty or has an empty dictionary inside
-        print("empty file passed into analytic") 
-        return [{}]
+
     #increments each category respectively
     for proj in data:
         projDate = proj['launched']
