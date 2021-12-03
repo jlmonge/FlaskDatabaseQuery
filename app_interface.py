@@ -43,6 +43,50 @@ def search_helper(key, method="GET", input_type=''):
         return redirect(url_for('results', key=key, value=value)) # go to results function
     return render_template('search-input.html', type=input_type, name=key) # load page
 
+def analytic_helper_edit(proj, new_state, new_name, new_launched):
+    analytic_helper_delete(proj)
+    analytic_helper_add(proj, new_state, new_name, new_launched)
+
+def analytic_helper_add(proj, state, name, date_launched):
+    global count_dict
+    global yearDict
+    
+    if(state == "successful" or (state == '\n' and proj['state'] == "successful")):
+            if name != '\n':
+                res = name.split()
+            else:
+                res = proj['name'].split()
+            for i in res:
+                if(len(i) >= 4):
+                    if i in count_dict:
+                        count_dict[i] += 1
+                    else:
+                        count_dict[i] = 1
+
+    if new_launched != '\n':
+        launchVals = date_launched.split('-')
+        if launchVals[0] in yearDict.keys():
+            yearDict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
+
+def analytic_helper_delete(i):
+    global count_dict
+    global yearDict
+    #for incremental analytics count words
+    if(i['state'] == "successful"):
+        res = i['name'].split()
+        for x in res:
+            if x in count_dict:
+                if(len(x) >= 4):
+                    count_dict[x] -= 1
+    #incremental analytics end ------
+    #for incremental analytics count projects
+    if new_launched != '\n':
+        launchVals = i["launched"].split('-')
+        if launchVals[0] in yearDict.keys():
+            yearDict[launchVals[0]][(int(launchVals[1]) - 1)] -= 1
+
+    #incremental analytics end ------
+
 app = Flask(__name__) # neccessary for flask
 
 @app.before_first_request
@@ -167,26 +211,12 @@ def do_delete(id_to_delete):
         #data = json.load(file)
 
         #global count_dict for incremental analyitics
-        global count_dict
-        global yearDict
 
         for i in data:
             if i['ID'] == id_to_delete:
                 located = True
-                #for incremental analytics count words
-                if(i['state'] == "successful"):
-                    res = i['name'].split()
-                    for x in res:
-                        if(len(x) >= 4):
-                            count_dict[x] -= 1
-                #incremental analytics end ------
-                #for incremental analytics count projects
                 
-                launchVals = i["launched"].split('-')
-                if launchVals[0] in yearDict.keys():
-                    yearDict[launchVals[0]][(int(launchVals[1]) - 1)] -= 1
-
-                #incremental analytics end ------
+                analytic_helper_delete(i)
 
 
                 break
@@ -215,23 +245,7 @@ def add_kickstarter():
         add_to_json(data,ksToAdd.id,ksToAdd.name,ksToAdd.category,ksToAdd.main_category,ksToAdd.currency,ksToAdd.deadline,ksToAdd.goal,ksToAdd.date_launched,
             ksToAdd.number_pledged,ksToAdd.state,ksToAdd.number_backers,ksToAdd.country,ksToAdd.amount_usd_pledged,ksToAdd.amount_usd_pledged_real)
 
-        #incremental anayltics-------------
-        global count_dict
-        if(ksToAdd.state == "successful"):
-                res = ksToAdd.name.split()
-                for i in res:
-                    if(len(i) >= 4):
-                        if i in count_dict:
-                            count_dict[i] += 1
-                        else:
-                            count_dict[i] = 1
-
-        global yearDict
-        launchVals = ksToAdd.date_launched.split('-')
-        if launchVals[0] in yearDict.keys():
-            yearDict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
-            
-        #incremental end ------------------
+        analytic_helper_add(ksToAdd.state, ksToAdd.name, ksToAdd.date_launched)
 
 
         return render_template('results.html', message="Successfully added kickstarter "+ksToAdd.name)
@@ -309,41 +323,9 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
         if id == proj.get('ID'):
             projectFound = True
 
-            #incremental analytics -----------------
-            #removes previous words from name
-            if(proj['state'] == "successful"):
-                    res = proj['name'].split()
-                    for x in res:
-                        if x in count_dict:
-                            if(len(x) >= 4):
-                                count_dict[x] -= 1
 
-            #adds new words
-            if(new_state == "successful" or (new_state == '\n' and proj['state'] == "successful")):
-                if new_name != '\n':
-                    res = new_name.split()
-                else:
-                    res = proj['name'].split()
-                for i in res:
-                    if(len(i) >= 4):
-                        if i in count_dict:
-                            count_dict[i] += 1
-                        else:
-                            count_dict[i] = 1
+            analytic_helper_edit(proj, new_state, new_name, new_launched)
 
-            #removes previous count of projects if new launched date passed in, skips otherwise
-            if new_launched != '\n':
-                launchVals = proj["launched"].split('-')
-                if launchVals[0] in yearDict.keys():
-                    yearDict[launchVals[0]][(int(launchVals[1]) - 1)] -= 1
-            
-                launchVals = new_launched.split('-')
-                if launchVals[0] in yearDict.keys():
-                    yearDict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
-
-            #incremental analytics end --------------
-
-            # these if statements prevent flask errors when any new value is left blank
             if new_id != '\n':
                 proj['ID'] = new_id
             if new_name != '\n':
@@ -579,7 +561,8 @@ def category_per_month(): # most popular category per month
         finalListCat.append(cat)
         finalListCount.append(monthList[max_Ind])
 
-    # Portion that creates the graph and then returns it.
+    # print(finalListCat)
+    # print(len(finalListCount))
     fig = go.Figure(
         data =[go.Bar(name='January', x=categories, y=final_Dict['01']),
             go.Bar(name='February', x=categories, y=final_Dict['02']),
@@ -802,3 +785,5 @@ def most_successful_words():
 
     print("--- %s seconds ---" % (time.time() - start_time))
     return render_template('analytics.html', graphJSON=graphJSON)
+
+

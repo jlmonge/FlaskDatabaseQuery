@@ -244,36 +244,36 @@ class count_words_test():
     def single_ks(self):#tests list with a single value
         mockData = [ {"name": "Egidio Scognamillo: Realize a dream to change a life life life dream", "state": "successful"} ]
         labels = count_words(mockData)
-        assert (labels[0][0] == "life"),"With one ks pass back life because it occurs 3 times"
-        assert (labels[0][1] == "dream"),"With one ks pass back life because it occurs 2 times"
-        assert (labels[1][0] == 3), "With one ks, life occurs 3 times"
-        assert (labels[1][1] == 2), "With one ks, dream occurs 2 times"
+        assert ("life" in labels.keys()),"With one ks pass back life because it occurs 3 times"
+        assert ("dream" in labels.keys()),"With one ks pass back life because it occurs 2 times"
+        assert (labels["life"] == 3), "With one ks, life occurs 3 times"
+        assert (labels["dream"] == 2), "With one ks, dream occurs 2 times"
 
     def single_ks_fail(self):#tests list with a single value
         mockData = [ {"name": "Egidio Scognamillo: Realize a dream to change a life life life dream", "state": "failed"} ]
         test = count_words(mockData)
-        assert (test == ([], [])),"With no successful projects it returns nothing"
+        assert (test == {}),"With no successful projects it returns nothing"
 
     def empty_file(self):#tests list with a single value
         mockData = [ {} ]
         test = count_words(mockData)
-        assert (test == ([], [])),"With no projects it returns nothing"
+        assert (test == {} ),"With no projects it returns nothing"
     
     def multiple_ks_for_same_succ(self):
         mockData = [ {"name": "Egidio Scognamillo: Realize a dream to change a life life life dream", "state": "successful"}, {"name": "Egidio Scognamillo: Realize a dream to change a life life life dream", "state": "successful"}]
         labels = count_words(mockData)
-        assert (labels[0][0] == "life"),"With one ks pass back life because it occurs 6 times"
-        assert (labels[0][1] == "dream"),"With one ks pass back life because it occurs 4 times"
-        assert (labels[1][0] == 6), "With one ks, life occurs 6 times"
-        assert (labels[1][1] == 4), "With one ks, dream occurs 4 times"
+        assert ("life" in labels.keys()),"With one ks pass back life because it occurs 6 times"
+        assert ("dream" in labels.keys()),"With one ks pass back life because it occurs 4 times"
+        assert (labels["life"] == 6), "With one ks, life occurs 6 times"
+        assert (labels["dream"] == 4), "With one ks, dream occurs 4 times"
 
     def multiple_ks_for_multiple_years_both(self):
         mockData = [ {"name": "Egidio Scognamillo: Realize a dream to change a life life life dream", "state": "successful"}, {"name": "Egidio Scognamillo: Realize a dream to change a life life life dream", "state": "successful"}, {"name": "Egidio Scognamillo: Realize a dream to change a life life life dream", "state": "failed"}]
         labels = count_words(mockData)
-        assert (labels[0][0] == "life"),"With one ks pass back life because it occurs 6 times"
-        assert (labels[0][1] == "dream"),"With one ks pass back life because it occurs 4 times"
-        assert (labels[1][0] == 6), "With one ks, life occurs 6 times"
-        assert (labels[1][1] == 4), "With one ks, dream occurs 4 times"
+        assert ("life" in labels.keys()),"With one ks pass back life because it occurs 6 times"
+        assert ("dream" in labels.keys()),"With one ks pass back life because it occurs 4 times"
+        assert (labels["life"] == 6), "With one ks, life occurs 6 times"
+        assert (labels["dream"] == 4), "With one ks, dream occurs 4 times"
 
 class count_categories_per_month_test():
     def run_all(self):
