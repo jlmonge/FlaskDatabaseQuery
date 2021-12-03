@@ -289,3 +289,74 @@ def createDropdown(figure,barCount,titleKeys,titleList,barsPerTab):
     )
     return figure
 # ----------------------------
+
+# ----- count_categories_per_month() -----
+# Helper function for analytics, namely category_per_month().
+# Passes in the data file to be read.
+# Makes no external function calls.
+# Counts the number of projects belonging to each month and its corresponding category.
+# Returns the completed dictionary of categories for all months.
+# ------------------
+def count_categories_per_month(data):
+    # Check if it is necessary to create dictionary
+    if len(data) == 0 or not data[0]:#quick check to see if pyfile is either empty or has an empty dictionary inside
+        print("empty file passed into analytic") 
+        return [{}]
+
+    # Initialize variables
+    month_dict = {'01':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '02':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '03':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '04':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '05':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '06':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '07':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '08':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '09':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '10':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], '11':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        '12':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
+    categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
+        'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
+        'Dance']
+
+    # Increment each category respectively
+    for proj in data:
+        projDate = proj['launched']
+        if bad_date(projDate):
+            continue
+        projMonth = projDate[5:7] # substring of the month 
+        projCat = proj['main_category']
+        if projCat in categories:
+            catIndex = categories.index(projCat)
+            month_dict[projMonth][catIndex] += 1 #increment up that category 
+    return month_dict
+# --------------------------------------
+
+
+# ----- get_countrys_category() -----
+# Helper function for analytics, namely popular_category_perNation().
+# Passes in the data file to be read.
+# Makes no external function calls.
+# Counts the number of projects belonging to each country, and its corresponding category.
+# Returns the completed dictionary of categories for all countries.
+# ----------------
+def get_countrys_category(data):
+    # Check if it is necessary to create dictionary
+    if len(data) == 0 or not data[0]:#quick check to see if pyfile is either empty or has an empty dictionary inside
+    print("empty file passed into analytic") 
+    return {}
+
+    # Initialize variables
+    categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
+        'Fashion', 'Food', 'Art', 'Comics', 'Photography', 'Theater', 'Crafts', 'Journalism',
+        'Dance'] 
+    analyticDict = {}
+
+    # Loop through dataset to add entries
+    for proj in data:
+        projCountry = proj['country']
+        projCat = proj['main_category']
+        catIndex = categories.index(projCat)
+        if projCountry in analyticDict.keys(): # no need to create new entry in the dictionary
+            analyticDict[projCountry][catIndex] += 1
+        else:
+            #makes entry for the newly detected country
+            analyticDict[projCountry] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            analyticDict[projCountry][catIndex] += 1 
+
+    return analyticDict
+# ---------------------------------

@@ -553,19 +553,17 @@ def category_per_month():
     finalListCat = []
     finalListCount = []
     final_Dict = {}
+    # listMonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
     # Data collection
-    final_Dict = count_categories_per_month(DATA) # FIXME: NOT DEFINED
+    final_Dict = count_categories_per_month(DATA)
+   
     for key in final_Dict.keys():
         monthList = final_Dict[key]
         max_Ind = monthList.index(max(monthList))
         cat = categories[max_Ind]
         finalListCat.append(cat)
         finalListCount.append(monthList[max_Ind])
-
-    # Debug
-    print(finalListCat)
-    print(len(finalListCount))
 
     # Create graph
     fig = go.Figure(
@@ -657,7 +655,7 @@ def ambitiousProjects():
 # Not incremental
 def popular_category_perNation():
     # Data collection
-    countryDict = get_countrys_category(DATA) # FIXME: NOT DEFINED
+    countryDict = get_countrys_category(DATA)
 
     # Variable initialization
     categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
