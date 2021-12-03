@@ -12,21 +12,23 @@ cs180project-022-the-jarrs created by GitHub Classroom
 2. Flask
     - Reference: https://flask.palletsprojects.com/en/2.0.x/quickstart/
     - How to install Flask on terminal:
-    - sudo apt install python3-pip
-    - python3 -m pip install --upgrade pip
-    - pip install -U Flask
+        - `sudo apt install python3-pip`
+        - `python3 -m pip install --upgrade pip`
+        - `pip install -U Flask`
 
 3. Plotly
-    - pip install plotly==5.4.0
+    - `pip install plotly==5.4.0`
 
 
 # Running the Website
   - Ensure Flask version 2.x.x and plotly are installed
     - Use `flask --version` 
     - Expected output:
-      - Python 3.8.5
-      - Flask 2.0.2
-      - Werkzeug 2.0.2
+        ```
+        Python 3.8.5
+        Flask 2.0.2
+        Werkzeug 2.0.2
+        ```
     - Run `import plotly` in interactive shell
   - Expected output: (no output)
   - Run one of the following in the terminal
