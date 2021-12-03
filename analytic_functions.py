@@ -237,8 +237,12 @@ def findAmbitious(dataFile):
 # Reads each entry, adds a new year if it is not yet added.
 # Returns the completed list of years.
 # -------------
-def gatherYears(dataFile):
+def gatherYears(dataFile):    
     retList = []
+    
+    if len(dataFile) == 0:
+        return retList 
+
     for item in dataFile:
        date =  item['launched'] # 2012-03-17 03:24:11
        if (bad_date(date) == False):
