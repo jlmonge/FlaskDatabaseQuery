@@ -314,12 +314,16 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
             if(proj['state'] == "successful"):
                     res = proj['name'].split()
                     for x in res:
-                        if(len(x) >= 4):
-                            count_dict[x] -= 1
+                        if x in count_dict:
+                            if(len(x) >= 4):
+                                count_dict[x] -= 1
 
             #adds new words
-            if(new_state == "successful"):
-                res = new_name.split()
+            if(new_state == "successful" or (new_state == '\n' and proj['state'] == "successful")):
+                if new_name != '\n':
+                    res = new_name.split()
+                else:
+                    res = proj['name'].split()
                 for i in res:
                     if(len(i) >= 4):
                         if i in count_dict:
@@ -327,15 +331,15 @@ def do_edit(id, new_id, new_name, new_category, new_main_category, new_currency,
                         else:
                             count_dict[i] = 1
 
-            #removes previous count of projects
-            launchVals = proj["launched"].split('-')
-            if launchVals[0] in yearDict.keys():
-                yearDict[launchVals[0]][(int(launchVals[1]) - 1)] -= 1
+            #removes previous count of projects if new launched date passed in, skips otherwise
+            if new_launched != '\n':
+                launchVals = proj["launched"].split('-')
+                if launchVals[0] in yearDict.keys():
+                    yearDict[launchVals[0]][(int(launchVals[1]) - 1)] -= 1
             
-
-            launchVals = new_launched.split('-')
-            if launchVals[0] in yearDict.keys():
-                yearDict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
+                launchVals = new_launched.split('-')
+                if launchVals[0] in yearDict.keys():
+                    yearDict[launchVals[0]][(int(launchVals[1]) - 1)] += 1
 
             #incremental analytics end --------------
 
