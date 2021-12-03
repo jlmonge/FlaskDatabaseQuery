@@ -3,7 +3,7 @@ import time
 import json
 import io
 import time
-from typing import final
+#from typing import final
 from flask import Flask, render_template, request, redirect, url_for, flash
 from userInput import exampleForm, kickStarterForm # import forms here. We import these to keep ourselves organized.
 from category_searches import highest_usd_pledged_search#functions from the category_searches file. Use them to search a specific category
