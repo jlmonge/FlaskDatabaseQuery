@@ -37,6 +37,8 @@ def most_funded_category_per_year(year , file_data):
 
     result = []
 
+    if len(file_data) == 0 or file_data == [{}]:
+        return result
     
     for key in file_data:
         if key['main_category'] in category_dict.keys():
@@ -98,12 +100,17 @@ def bad_date(date):
 # Returns the completed list of years, list of average kickstarter lengths for those years, and the total average across all years.
 # ---------------
 def average_length_ks(pyfile):
-    labels = list() #labels for each datapoint
-    returnData = list() #datapoints(average length per year)
+    labels = [] #labels for each datapoint
+    returnData = [] #datapoints(average length per year)
     totalAverage = 0
     totalDates = 0
-    dataByMonth = list() #
+    dataByMonth = [] #
     #listValues = ["year",0.0,0]#"year or total", sum of lengths, number of values
+
+    if len(pyfile) == 0 or pyfile == [{}]:
+        return labels,returnData,totalAverage
+
+
     for i in pyfile: # For every entry,
         if bad_date(i["launched"]) or bad_date(i["deadline"]): # Check if dates are valid,
             continue
@@ -111,6 +118,9 @@ def average_length_ks(pyfile):
         endDate = date(int(i["deadline"][0:4]),int(i["deadline"][5:7]),int(i["deadline"][8:10])) # and the ending time,
         
         timeBetween = endDate - startDate # Find the difference,
+
+        if timeBetween.days < 0:
+            continue
         
         yearNotInList = True
         for val in range(len(dataByMonth)): # Then for all currently collected data,
@@ -128,10 +138,15 @@ def average_length_ks(pyfile):
         returnData.append(iteration[1]/iteration[2]) # Add that year's (total length / total projects) average to returnData,
         totalDates = iteration[2] + totalDates # and calculate the totals.
         totalAverage = iteration[1] + totalAverage
-    totalAverage = totalAverage/totalDates
+
+
+    if totalDates == 0:#error check for if there were only bad kickstarters passed in to prevent divide by zero
+        totalAverage = 0
+    else:
+        totalAverage = totalAverage/totalDates
 
     # Finally, return everything.
-    return labels, returnData, totalAverage
+    return labels, returnData,totalAverage
 # --------------------------------
 
 
@@ -147,6 +162,11 @@ def countProjects(dataFile):
     # list format: {Year}:[Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec]
     # each value represents the number of projects launched in that month for that year.
     retDict = {}
+
+    if len(dataFile) == 0 or dataFile == [{}]:
+        return retDict
+
+
     yearList = gatherYears(dataFile)
     for year in yearList:
         retDict[str(year)] = [0,0,0,0,0,0,0,0,0,0,0,0]
@@ -170,6 +190,10 @@ def countProjects(dataFile):
 # Returns the list of category titles, and the completed list of ratios for those categories
 # -----------------
 def count_cat_fail_success(data):
+
+    if len(data) == 0 or data == [{}]:
+        return [{}]
+
     category_dict = { # key=main category, value=#successful[0],#failed[1]
         'Games':[0,0], 'Design':[0,0], 'Technology':[0,0], 'Film & Video':[0,0], 'Music':[0,0], 
         'Publishing':[0,0], 'Fashion':[0,0], 'Food':[0,0], 'Art':[0,0], 
@@ -202,6 +226,11 @@ def count_cat_fail_success(data):
 def findAmbitious(dataFile):
     # dictionary format: {year-month}:[ID,goal,pledged]
     retDict = {}
+    
+    if len(dataFile) == 0 or dataFile == [{}]:
+        return retDict
+
+
     for item in dataFile:
         if (bad_date(item['launched']) == False): # 2012-03-17 03:24:11
             date = item['launched'][0:7] # 2012-03
@@ -240,7 +269,7 @@ def findAmbitious(dataFile):
 def gatherYears(dataFile):    
     retList = []
     
-    if len(dataFile) == 0:
+    if len(dataFile) == 0 or dataFile == [{}]:
         return retList 
 
     for item in dataFile:

@@ -75,9 +75,7 @@ class unit_tests_count_projects:
     def empty_file(self):#Test an empty data structure being passed
         mockData = [{}]
         returnDictionary = countProjects(mockData)
-        for year in returnDictionary:
-            for month in range(0,11):
-                assert(returnDictionary[year][month] == 0),"empty file results in all values being zero"
+        assert(returnDictionary == {}),"empty file results in all values being zero"
     def several_ks_per_year(self): #test several inputs in one year
         mockData = [{'launched': '2015-08-11 12:12:28'},{'launched': '2015-09-31 12:12:28'},{'launched': '2015-08-10 12:12:28'}]
         returnDictionary = countProjects(mockData)
@@ -177,7 +175,7 @@ class most_funded_category_per_year_test():
     def empty_file(self):#tests list with a single value
         mockData = [{}]
         test = most_funded_category_per_year('2016', mockData)
-        assert (test == "" ),"With empty dataset funciton returns empty string"
+        assert (test == [] ),"With empty dataset funciton returns empty string"
 
     def multiple_ks_for_same_year(self):
         mockData = [{ "main_category": "Music" , "pledged": "2381.00" , "launched": "2016-05-27 15:44:55"} , {"main_category": "Music", "pledged": "400.00" , "launched": "2016-01-05 15:46:50"} , {"main_category": "Art", "pledged": "400.00" , "launched": "2016-01-05 15:46:50"} ]
