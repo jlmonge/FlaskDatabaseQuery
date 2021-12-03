@@ -346,8 +346,8 @@ def count_categories_per_month(data):
 def get_countrys_category(data):
     # Check if it is necessary to create dictionary
     if len(data) == 0 or not data[0]:#quick check to see if pyfile is either empty or has an empty dictionary inside
-    print("empty file passed into analytic") 
-    return {}
+        print("empty file passed into analytic") 
+        return {}
 
     # Initialize variables
     categories = ['Games', 'Design', 'Technology', 'Film & Video', 'Music', 'Publishing',
@@ -371,3 +371,24 @@ def get_countrys_category(data):
 
     return analyticDict
 # ---------------------------------
+
+
+
+##Successful words analytics
+def count_words(data):
+
+    count_dict = {}
+    
+    for item in data:
+        if 'state' in item.keys():
+            if(item['state'] == "successful"):
+                res = item['name'].split()
+                for i in res:
+                    if(len(i) >= 4):
+                        if i in count_dict:
+                            count_dict[i] += 1
+                        else:
+                            count_dict[i] = 1
+    
+
+    return count_dict
